@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="votes_average">Average: %1$s</string>
+    <string name="overview">Overview:</string>
+    <string name="release_date">Release date:</string>
+    <string name="average">Average:</string>
+
+    <string name="popular">Most popular</string>
+    <string name="top_rated">Highest rated</string>
+</resources>
