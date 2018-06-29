@@ -44,7 +44,6 @@ public class DetailMovieActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         supportPostponeEnterTransition();
-
         Intent intent = getIntent();
 
         if (intent.hasExtra(EXTRA_MOVIE_MODEL) && intent.hasExtra(EXTRA_IMAGE_TRANSITION_NAME)) {
@@ -55,32 +54,36 @@ public class DetailMovieActivity extends AppCompatActivity {
                 imageView.setTransitionName(imageTransitionName);
             }
 
-            Picasso.get()
-                    .load(IMAGE_HD_BASE_URL + movieModel.getImageUrl())
-                    .noFade()
-                    .into(imageView, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            supportStartPostponedEnterTransition();
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-
-                        }
-                    });
-
-            textViewMovieTitle.setText(movieModel.getName());
-            textViewSummary.setText(movieModel.getOverview());
-            textViewAverage.setText(movieModel.getAverage());
-            String releaseDate = movieModel.getReleaseDate();
-            String readableReleaseDate = DateUtils.changeDateFormat(
-                    releaseDate,
-                    DateUtils.MOVIE_DATE_FORMAT,
-                    DateUtils.READABLE_DATE_FORMAT
-            );
-            textViewReleaseDate.setText(readableReleaseDate);
+            setupUI(movieModel);
         }
 
+    }
+
+    private void setupUI(MovieModel movieModel) {
+        Picasso.get()
+                .load(IMAGE_HD_BASE_URL + movieModel.getImageUrl())
+                .noFade()
+                .into(imageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        supportStartPostponedEnterTransition();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+                });
+
+        textViewMovieTitle.setText(movieModel.getName());
+        textViewSummary.setText(movieModel.getOverview());
+        textViewAverage.setText(movieModel.getAverage());
+        String releaseDate = movieModel.getReleaseDate();
+        String readableReleaseDate = DateUtils.changeDateFormat(
+                releaseDate,
+                DateUtils.MOVIE_DATE_FORMAT,
+                DateUtils.READABLE_DATE_FORMAT
+        );
+        textViewReleaseDate.setText(readableReleaseDate);
     }
 }
