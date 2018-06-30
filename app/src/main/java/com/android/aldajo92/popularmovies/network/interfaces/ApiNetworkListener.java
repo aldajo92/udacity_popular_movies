@@ -1,7 +1,6 @@
-package com.android.aldajo92.popularmovies.network;
+package com.android.aldajo92.popularmovies.network.interfaces;
 
-public interface NetworkListener {
-
+public interface ApiNetworkListener {
     void showLoader();
 
     void hideLoader();

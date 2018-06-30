@@ -20,9 +20,9 @@ import android.widget.TextView;
 import com.android.aldajo92.popularmovies.adapter.MovieItemListener;
 import com.android.aldajo92.popularmovies.adapter.MoviesAdapter;
 import com.android.aldajo92.popularmovies.models.MovieModel;
-import com.android.aldajo92.popularmovies.network.NetworkListener;
 import com.android.aldajo92.popularmovies.network.NetworkManager;
-import com.android.aldajo92.popularmovies.network.tasks.NetworkTask;
+import com.android.aldajo92.popularmovies.network.interfaces.ApiNetworkListener;
+import com.android.aldajo92.popularmovies.network.tasks.ApiNetworkTask;
 import com.android.aldajo92.popularmovies.utils.JSONUtils;
 
 import java.net.URL;
@@ -36,7 +36,7 @@ import static com.android.aldajo92.popularmovies.network.NetworkManager.TOP_RATE
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
 
-public class MainActivity extends AppCompatActivity implements NetworkListener, MovieItemListener {
+public class MainActivity extends AppCompatActivity implements ApiNetworkListener, MovieItemListener {
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements NetworkListener, 
 
     private void getNetworkData(String filter) {
         URL url = NetworkManager.getPopularMovieURL(filter);
-        new NetworkTask(url, this);
+        new ApiNetworkTask(url, this);
     }
 
     @Override

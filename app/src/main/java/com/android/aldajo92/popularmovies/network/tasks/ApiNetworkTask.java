@@ -2,21 +2,19 @@ package com.android.aldajo92.popularmovies.network.tasks;
 
 import android.os.AsyncTask;
 
-import com.android.aldajo92.popularmovies.network.NetworkListener;
 import com.android.aldajo92.popularmovies.network.NetworkManager;
+import com.android.aldajo92.popularmovies.network.interfaces.ApiNetworkListener;
+import com.android.aldajo92.popularmovies.network.interfaces.ConnectionListener;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.URL;
 
-public class NetworkTask extends AsyncTask<URL, Void, String> implements CheckConnectionTask.Consumer {
+public class ApiNetworkTask extends AsyncTask<URL, Void, String> implements ConnectionListener {
 
-    private NetworkListener listener;
+    private ApiNetworkListener listener;
     private URL url;
 
-    public NetworkTask(URL url, NetworkListener listener) {
+    public ApiNetworkTask(URL url, ApiNetworkListener listener) {
         this.listener = listener;
         this.url = url;
         validateConnection();

@@ -2,22 +2,18 @@ package com.android.aldajo92.popularmovies.network.tasks;
 
 import android.os.AsyncTask;
 
+import com.android.aldajo92.popularmovies.network.interfaces.ConnectionListener;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.URL;
 
-public class CheckConnectionTask extends AsyncTask<Void, Void, Boolean>{
+public class CheckConnectionTask extends AsyncTask<Void, Void, Boolean> {
 
-    private Consumer mConsumer;
+    private ConnectionListener mConnectionListener;
 
-    public interface Consumer {
-        void connectionEvent(Boolean isConnected);
-    }
-
-    public CheckConnectionTask(Consumer consumer) {
-        mConsumer = consumer;
+    public CheckConnectionTask(ConnectionListener connectionListener) {
+        mConnectionListener = connectionListener;
         execute();
     }
 
@@ -35,6 +31,6 @@ public class CheckConnectionTask extends AsyncTask<Void, Void, Boolean>{
 
     @Override
     protected void onPostExecute(Boolean isConnected) {
-        mConsumer.connectionEvent(isConnected);
+        mConnectionListener.connectionEvent(isConnected);
     }
 }

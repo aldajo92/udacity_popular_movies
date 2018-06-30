@@ -7,10 +7,7 @@ import com.android.aldajo92.popularmovies.utils.Constants;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.URL;
 import java.util.Scanner;
 
