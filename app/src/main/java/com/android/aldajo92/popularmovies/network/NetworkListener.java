@@ -8,4 +8,5 @@ public interface NetworkListener {
 
     void onResponse(String response);
 
+    void showNetworkError();
 }

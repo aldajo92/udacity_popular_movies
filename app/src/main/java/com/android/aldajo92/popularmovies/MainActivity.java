@@ -12,15 +12,17 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.android.aldajo92.popularmovies.adapter.MovieItemListener;
 import com.android.aldajo92.popularmovies.adapter.MoviesAdapter;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.network.NetworkListener;
 import com.android.aldajo92.popularmovies.network.NetworkManager;
-import com.android.aldajo92.popularmovies.network.NetworkTask;
+import com.android.aldajo92.popularmovies.network.tasks.NetworkTask;
 import com.android.aldajo92.popularmovies.utils.JSONUtils;
 
 import java.net.URL;
@@ -39,12 +41,22 @@ public class MainActivity extends AppCompatActivity implements NetworkListener, 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
+    @BindView(R.id.imageView_no_internet)
+    ImageView imageViewNoInternet;
+
+    @BindView(R.id.textView_no_internet)
+    TextView textViewNoInternet;
+
+    @BindView(R.id.button_try_again)
+    TextView buttonTryAgain;
+
     MoviesAdapter adapter;
     AlertDialog alertDialog;
 
     List<MovieModel> movieModelList;
 
-    int selectedFilter = R.id.action_filter_popular;
+    int selectedFilterID = R.id.action_filter_popular;
+    String selectedFilter = MOVIE_PARAM;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements NetworkListener, 
         if (savedInstanceState == null) {
             createAlertDialog();
             initRecyclerView();
+            initListeners();
             getNetworkData(MOVIE_PARAM);
         }
     }
@@ -79,9 +92,18 @@ public class MainActivity extends AppCompatActivity implements NetworkListener, 
         recyclerView.setAdapter(adapter);
     }
 
+    private void initListeners() {
+        buttonTryAgain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getNetworkData(selectedFilter);
+            }
+        });
+    }
+
     private void getNetworkData(String filter) {
         URL url = NetworkManager.getPopularMovieURL(filter);
-        new NetworkTask(this).execute(url);
+        new NetworkTask(url, this);
     }
 
     @Override
@@ -100,8 +122,21 @@ public class MainActivity extends AppCompatActivity implements NetworkListener, 
 
     @Override
     public void onResponse(String response) {
+        recyclerView.setVisibility(View.VISIBLE);
+        textViewNoInternet.setVisibility(View.GONE);
+        imageViewNoInternet.setVisibility(View.GONE);
+        buttonTryAgain.setVisibility(View.GONE);
+
         movieModelList = JSONUtils.JSONToMovieModel(response);
         adapter.addItems(movieModelList);
+    }
+
+    @Override
+    public void showNetworkError() {
+        recyclerView.setVisibility(View.GONE);
+        textViewNoInternet.setVisibility(View.VISIBLE);
+        imageViewNoInternet.setVisibility(View.VISIBLE);
+        buttonTryAgain.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -127,13 +162,15 @@ public class MainActivity extends AppCompatActivity implements NetworkListener, 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-        if(itemId != selectedFilter){
-            selectedFilter = itemId;
+        if (itemId != selectedFilterID) {
+            selectedFilterID = itemId;
             switch (itemId) {
                 case R.id.action_filter_popular:
+                    selectedFilter = MOVIE_PARAM;
                     getNetworkData(MOVIE_PARAM);
                     return true;
                 case R.id.filter_top_rated:
+                    selectedFilter = TOP_RATED_PARAM;
                     getNetworkData(TOP_RATED_PARAM);
                     return true;
                 default:
