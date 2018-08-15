@@ -1,15 +1,19 @@
 package com.android.aldajo92.popularmovies;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,17 +23,22 @@ import android.widget.TextView;
 
 import com.android.aldajo92.popularmovies.adapter.MovieItemListener;
 import com.android.aldajo92.popularmovies.adapter.MoviesAdapter;
+import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
+import com.android.aldajo92.popularmovies.db.MovieDatabase;
 import com.android.aldajo92.popularmovies.models.MovieModel;
-import com.android.aldajo92.popularmovies.network.NetworkManager;
+import com.android.aldajo92.popularmovies.models.MoviesModelResponse;
 import com.android.aldajo92.popularmovies.network.interfaces.ApiNetworkListener;
-import com.android.aldajo92.popularmovies.network.tasks.ApiNetworkTask;
+import com.android.aldajo92.popularmovies.newnetwork.MoviesAPI;
+import com.android.aldajo92.popularmovies.newnetwork.MoviesService;
 import com.android.aldajo92.popularmovies.utils.JSONUtils;
 
-import java.net.URL;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.android.aldajo92.popularmovies.network.NetworkManager.MOVIE_PARAM;
 import static com.android.aldajo92.popularmovies.network.NetworkManager.TOP_RATED_PARAM;
@@ -37,6 +46,8 @@ import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRA
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
 
 public class MainActivity extends AppCompatActivity implements ApiNetworkListener, MovieItemListener {
+
+    private static String TAG = MainActivity.class.getName();
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -58,6 +69,10 @@ public class MainActivity extends AppCompatActivity implements ApiNetworkListene
     int selectedFilterID = R.id.action_filter_popular;
     String selectedFilter = MOVIE_PARAM;
 
+    private MovieDatabase mDb;
+
+    private MoviesAPI moviesService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,8 +83,23 @@ public class MainActivity extends AppCompatActivity implements ApiNetworkListene
             createAlertDialog();
             initRecyclerView();
             initListeners();
+            moviesService = MoviesService.getClient().create(MoviesAPI.class);
             getNetworkData(MOVIE_PARAM);
         }
+
+        mDb = MovieDatabase.getInstance(getApplicationContext());
+        initDatabase();
+    }
+
+    private void initDatabase() {
+        LiveData<List<FavoriteMovieEntry>> tasks = mDb.favoriteMovieDao().getFavoritesMovies();
+        tasks.observe(this, new Observer<List<FavoriteMovieEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<FavoriteMovieEntry> taskEntries) {
+//                Log.d(TAG, "Receiving database update from LiveData");
+//                mAdapter.setTasks(taskEntries);
+            }
+        });
     }
 
     private void createAlertDialog() {
@@ -102,8 +132,18 @@ public class MainActivity extends AppCompatActivity implements ApiNetworkListene
     }
 
     private void getNetworkData(String filter) {
-        URL url = NetworkManager.getPopularMovieURL(filter);
-        new ApiNetworkTask(url, this);
+        Call<MoviesModelResponse> call = moviesService.getMovies(filter);
+        call.enqueue(new Callback<MoviesModelResponse>() {
+            @Override
+            public void onResponse(Call<MoviesModelResponse> call, Response<MoviesModelResponse> response) {
+                Log.i(TAG, "onResponse: ");
+            }
+
+            @Override
+            public void onFailure(Call<MoviesModelResponse> call, Throwable t) {
+                Log.i(TAG, "onResponse: ");
+            }
+        });
     }
 
     @Override

@@ -3,13 +3,24 @@ package com.android.aldajo92.popularmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 public class MovieModel implements Parcelable {
 
-    private String name = "";
-    private String average = "";
-    private String imageUrl = "";
-    private String overview = "";
-    private String releaseDate = "";
+    @SerializedName("name")
+    private String name;
+
+    @SerializedName("vote_average")
+    private String average;
+
+    @SerializedName("poster_path")
+    private String imageUrl;
+
+    @SerializedName("overview")
+    private String overview;
+
+    @SerializedName("release_date")
+    private String releaseDate;
 
     public MovieModel(String name, String average, String imageUrl, String overview, String releaseDate) {
         this.name = name;
