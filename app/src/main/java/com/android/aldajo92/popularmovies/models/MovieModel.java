@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class MovieModel implements Parcelable {
 
-    @SerializedName("name")
+    @SerializedName("title")
     private String name;
 
     @SerializedName("vote_average")

@@ -13,7 +13,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,10 +26,8 @@ import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.db.MovieDatabase;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.models.MoviesModelResponse;
-import com.android.aldajo92.popularmovies.network.interfaces.ApiNetworkListener;
 import com.android.aldajo92.popularmovies.newnetwork.MoviesAPI;
 import com.android.aldajo92.popularmovies.newnetwork.MoviesService;
-import com.android.aldajo92.popularmovies.utils.JSONUtils;
 
 import java.util.List;
 
@@ -45,7 +42,7 @@ import static com.android.aldajo92.popularmovies.network.NetworkManager.TOP_RATE
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
 
-public class MainActivity extends AppCompatActivity implements ApiNetworkListener, MovieItemListener {
+public class MainActivity extends AppCompatActivity implements MovieItemListener {
 
     private static String TAG = MainActivity.class.getName();
 
@@ -132,47 +129,48 @@ public class MainActivity extends AppCompatActivity implements ApiNetworkListene
     }
 
     private void getNetworkData(String filter) {
+        showLoader();
         Call<MoviesModelResponse> call = moviesService.getMovies(filter);
         call.enqueue(new Callback<MoviesModelResponse>() {
             @Override
             public void onResponse(Call<MoviesModelResponse> call, Response<MoviesModelResponse> response) {
-                Log.i(TAG, "onResponse: ");
+                hideLoader();
+                MoviesModelResponse moviesModelResponse = response.body();
+                if(moviesModelResponse != null){
+                    handleResponse(moviesModelResponse.getMovies());
+                }
             }
 
             @Override
             public void onFailure(Call<MoviesModelResponse> call, Throwable t) {
-                Log.i(TAG, "onResponse: ");
+                hideLoader();
+                showNetworkError();
             }
         });
     }
 
-    @Override
-    public void showLoader() {
+    private void showLoader() {
         if (alertDialog != null) {
             alertDialog.show();
         }
     }
 
-    @Override
-    public void hideLoader() {
+    private void hideLoader() {
         if (alertDialog != null) {
             alertDialog.dismiss();
         }
     }
 
-    @Override
-    public void onResponse(String response) {
+    public void handleResponse(List<MovieModel> movies){
+        movieModelList = movies;
         recyclerView.setVisibility(View.VISIBLE);
         textViewNoInternet.setVisibility(View.GONE);
         imageViewNoInternet.setVisibility(View.GONE);
         buttonTryAgain.setVisibility(View.GONE);
-
-        movieModelList = JSONUtils.JSONToMovieModel(response);
         adapter.addItems(movieModelList);
     }
 
-    @Override
-    public void showNetworkError() {
+    private void showNetworkError() {
         recyclerView.setVisibility(View.GONE);
         textViewNoInternet.setVisibility(View.VISIBLE);
         imageViewNoInternet.setVisibility(View.VISIBLE);
