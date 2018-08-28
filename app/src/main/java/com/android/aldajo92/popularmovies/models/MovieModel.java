@@ -7,6 +7,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class MovieModel implements Parcelable {
 
+    @SerializedName("id")
+    private long id;
+
     @SerializedName("title")
     private String name;
 
@@ -36,6 +39,7 @@ public class MovieModel implements Parcelable {
         imageUrl = in.readString();
         overview = in.readString();
         releaseDate = in.readString();
+        id = in.readLong();
     }
 
     public static final Creator<MovieModel> CREATOR = new Creator<MovieModel>() {
@@ -70,6 +74,10 @@ public class MovieModel implements Parcelable {
         return releaseDate;
     }
 
+    public long getId() {
+        return id;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -82,5 +90,6 @@ public class MovieModel implements Parcelable {
         dest.writeString(imageUrl);
         dest.writeString(overview);
         dest.writeString(releaseDate);
+        dest.writeLong(id);
     }
 }

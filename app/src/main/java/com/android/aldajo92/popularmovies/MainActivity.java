@@ -22,13 +22,12 @@ import android.widget.TextView;
 
 import com.android.aldajo92.popularmovies.adapter.MovieItemListener;
 import com.android.aldajo92.popularmovies.adapter.MoviesAdapter;
+import com.android.aldajo92.popularmovies.adapter.PaginationMoviesScrollListener;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
-import com.android.aldajo92.popularmovies.db.MovieDatabase;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.models.MoviesModelResponse;
-import com.android.aldajo92.popularmovies.newnetwork.MoviesAPI;
-import com.android.aldajo92.popularmovies.newnetwork.MoviesService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -61,14 +60,14 @@ public class MainActivity extends AppCompatActivity implements MovieItemListener
     MoviesAdapter adapter;
     AlertDialog alertDialog;
 
-    List<MovieModel> movieModelList;
+    List<MovieModel> movieModelList = new ArrayList<>();
 
     int selectedFilterID = R.id.action_filter_popular;
     String selectedFilter = MOVIE_PARAM;
 
-    private MovieDatabase mDb;
+    private MainViewModel viewModel;
 
-    private MoviesAPI moviesService;
+    private PaginationMoviesScrollListener scrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,20 +75,20 @@ public class MainActivity extends AppCompatActivity implements MovieItemListener
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        viewModel = new MainViewModel(this.getApplication());
+
         if (savedInstanceState == null) {
             createAlertDialog();
             initRecyclerView();
             initListeners();
-            moviesService = MoviesService.getClient().create(MoviesAPI.class);
-            getNetworkData(MOVIE_PARAM);
+            getFirstMovieList(MOVIE_PARAM);
         }
 
-        mDb = MovieDatabase.getInstance(getApplicationContext());
         initDatabase();
     }
 
     private void initDatabase() {
-        LiveData<List<FavoriteMovieEntry>> tasks = mDb.favoriteMovieDao().getFavoritesMovies();
+        LiveData<List<FavoriteMovieEntry>> tasks = viewModel.getFavoritesMoviesFromDb();
         tasks.observe(this, new Observer<List<FavoriteMovieEntry>>() {
             @Override
             public void onChanged(@Nullable List<FavoriteMovieEntry> taskEntries) {
@@ -115,28 +114,44 @@ public class MainActivity extends AppCompatActivity implements MovieItemListener
 
     private void initRecyclerView() {
         adapter = new MoviesAdapter(this);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
+        recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setAdapter(adapter);
+
+        scrollListener = new PaginationMoviesScrollListener(gridLayoutManager, 6) {
+            @Override
+            public void onLoadMore(int currentPage, int totalItemCount) {
+                getMoviesByPage(selectedFilter, currentPage + 1);
+            }
+        };
+
+        recyclerView.addOnScrollListener(scrollListener);
     }
 
     private void initListeners() {
         buttonTryAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getNetworkData(selectedFilter);
+                getFirstMovieList(selectedFilter);
             }
         });
     }
 
-    private void getNetworkData(String filter) {
+    private void getFirstMovieList(String filter) {
+        movieModelList.clear();
+        scrollListener.resetPagination();
+        getMoviesByPage(filter, 1);
+    }
+
+    private void getMoviesByPage(String filter, int page) {
         showLoader();
-        Call<MoviesModelResponse> call = moviesService.getMovies(filter);
+        Call<MoviesModelResponse> call = viewModel.getMoviesByPagination(filter, page);
         call.enqueue(new Callback<MoviesModelResponse>() {
             @Override
             public void onResponse(Call<MoviesModelResponse> call, Response<MoviesModelResponse> response) {
                 hideLoader();
                 MoviesModelResponse moviesModelResponse = response.body();
-                if(moviesModelResponse != null){
+                if (moviesModelResponse != null) {
                     handleResponse(moviesModelResponse.getMovies());
                 }
             }
@@ -161,8 +176,8 @@ public class MainActivity extends AppCompatActivity implements MovieItemListener
         }
     }
 
-    public void handleResponse(List<MovieModel> movies){
-        movieModelList = movies;
+    public void handleResponse(List<MovieModel> movies) {
+        movieModelList.addAll(movies);
         recyclerView.setVisibility(View.VISIBLE);
         textViewNoInternet.setVisibility(View.GONE);
         imageViewNoInternet.setVisibility(View.GONE);
@@ -205,11 +220,11 @@ public class MainActivity extends AppCompatActivity implements MovieItemListener
             switch (itemId) {
                 case R.id.action_filter_popular:
                     selectedFilter = MOVIE_PARAM;
-                    getNetworkData(MOVIE_PARAM);
+                    getFirstMovieList(MOVIE_PARAM);
                     return true;
                 case R.id.filter_top_rated:
                     selectedFilter = TOP_RATED_PARAM;
-                    getNetworkData(TOP_RATED_PARAM);
+                    getFirstMovieList(TOP_RATED_PARAM);
                     return true;
                 default:
                     return super.onOptionsItemSelected(item);

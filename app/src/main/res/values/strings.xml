@@ -9,4 +9,5 @@
     <string name="top_rated">Highest rated</string>
     <string name="no_internet_connection">No internet connection...</string>
     <string name="try_again">Try again...</string>
+    <string name="mark_as_favorite">Mark as favorite</string>
 </resources>

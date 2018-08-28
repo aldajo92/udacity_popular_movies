@@ -28,6 +28,6 @@ public interface FavoriteMovieDao {
     void deleteFavoriteMovie(FavoriteMovieEntry favoriteMovieEntry);
 
     @Query("SELECT * FROM " + FAVORITES_MOVIE_TABLE + " WHERE id = :id")
-    LiveData<FavoriteMovieEntry> loadTaskById(int id);
+    LiveData<FavoriteMovieEntry> getFavoriteMovieById(long id);
 
 }

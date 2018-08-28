@@ -1,153 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <android.support.constraint.ConstraintLayout
+    <TextView
+        android:id="@+id/textView_movie_title"
+        style="@style/TextViewTitleWhite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_normal"
+        android:layout_marginStart="@dimen/margin_normal"
+        android:layout_marginTop="@dimen/margin_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="TextView" />
+
+    <View
+        android:id="@+id/view_line"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="1dp"
+        android:layout_marginEnd="@dimen/margin_large"
+        android:layout_marginStart="@dimen/margin_large"
+        android:layout_marginTop="@dimen/margin_normal"
+        android:background="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/textView_movie_title" />
 
-        <TextView
-            android:id="@+id/textView_movie_title"
-            style="@style/TextViewTitleWhite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_normal"
-            android:layout_marginStart="@dimen/margin_normal"
-            android:layout_marginTop="@dimen/margin_large"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="TextView" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_line">
 
-        <View
-            android:id="@+id/view_line"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginEnd="@dimen/margin_large"
-            android:layout_marginStart="@dimen/margin_large"
-            android:layout_marginTop="@dimen/margin_normal"
-            android:background="@android:color/white"
-            app:layout_constraintTop_toBottomOf="@id/textView_movie_title" />
-
-        <ImageView
-            android:id="@+id/imageView_movie_picture"
-            android:layout_width="200dp"
-            android:layout_height="300dp"
-            android:layout_marginBottom="@dimen/margin_normal"
-            android:layout_marginEnd="@dimen/margin_normal"
-            android:layout_marginStart="@dimen/margin_large"
-            android:layout_marginTop="@dimen/margin_large"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view_line"
-            tools:background="@android:color/white" />
-
-        <TextView
-            android:id="@+id/textView_title_overview"
-            style="@style/TextViewTitleWhite"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_large"
-            android:layout_marginStart="@dimen/margin_large"
-            android:layout_marginTop="@dimen/margin_large"
-            android:text="@string/overview"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView_movie_picture" />
+            android:layout_marginTop="@dimen/margin_large">
 
-        <TextView
-            android:id="@+id/textView_overview"
-            android:layout_width="0dp"
-            style="@style/TextViewContentWhite"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_large"
-            android:layout_marginEnd="@dimen/margin_large"
-            android:layout_marginStart="@dimen/margin_large"
-            android:layout_marginTop="@dimen/margin_normal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_title_overview"
-            tools:text="Overview" />
+            <ImageView
+                android:id="@+id/imageView_movie_picture"
+                android:layout_width="200dp"
+                android:layout_height="300dp"
+                android:layout_marginBottom="@dimen/margin_normal"
+                android:layout_marginEnd="@dimen/margin_normal"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_large"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view_line"
+                tools:background="@android:color/white" />
 
-        <TextView
-            android:id="@+id/textView_title_average"
-            style="@style/TextViewSmallWhite"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_normal"
-            android:layout_marginStart="@dimen/margin_normal"
-            android:text="@string/average"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
-            app:layout_constraintTop_toTopOf="@+id/imageView_movie_picture" />
+            <TextView
+                android:id="@+id/textView_title_overview"
+                style="@style/TextViewTitleWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_large"
+                android:text="@string/overview"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView_movie_picture" />
 
-        <TextView
-            android:id="@+id/textView_average"
-            style="@style/TextViewHuge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_large"
-            android:layout_marginStart="@dimen/margin_normal"
-            android:layout_marginTop="@dimen/margin_normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
-            app:layout_constraintTop_toBottomOf="@id/textView_title_average"
-            tools:text="8.8" />
+            <TextView
+                android:id="@+id/textView_overview"
+                style="@style/TextViewContentWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_large"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_normal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView_title_overview"
+                tools:text="Overview" />
 
-        <View
-            android:id="@+id/view_second_line"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginEnd="@dimen/margin_large"
-            android:layout_marginStart="@dimen/margin_normal"
-            android:layout_marginTop="@dimen/margin_normal"
-            android:background="@android:color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
-            app:layout_constraintTop_toBottomOf="@id/textView_average" />
+            <TextView
+                android:id="@+id/textView_title_average"
+                style="@style/TextViewSmallWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_normal"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:text="@string/average"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
+                app:layout_constraintTop_toTopOf="@+id/imageView_movie_picture" />
 
-        <TextView
-            android:id="@+id/textView_title_release_date"
-            style="@style/TextViewSmallWhite"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_large"
-            android:layout_marginStart="@dimen/margin_normal"
-            android:layout_marginTop="@dimen/margin_large"
-            android:text="@string/release_date"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
-            app:layout_constraintTop_toBottomOf="@+id/textView_average" />
+            <TextView
+                android:id="@+id/textView_average"
+                style="@style/TextViewHuge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:layout_marginTop="@dimen/margin_normal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
+                app:layout_constraintTop_toBottomOf="@id/textView_title_average"
+                tools:text="8.8" />
 
-        <TextView
-            android:id="@+id/textView_release_date"
-            style="@style/TextViewContentWhite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_large"
-            android:layout_marginStart="@dimen/margin_normal"
-            android:layout_marginTop="@dimen/margin_normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
-            app:layout_constraintTop_toBottomOf="@+id/textView_title_release_date"
-            tools:text="TextView" />
+            <View
+                android:id="@+id/view_second_line"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:layout_marginTop="@dimen/margin_normal"
+                android:background="@android:color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
+                app:layout_constraintTop_toBottomOf="@id/textView_average" />
 
-        <View
-            android:id="@+id/view_third_line"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginEnd="@dimen/margin_large"
-            android:layout_marginStart="@dimen/margin_normal"
-            android:layout_marginTop="10dp"
-            android:background="@android:color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
-            app:layout_constraintTop_toBottomOf="@id/textView_release_date" />
+            <TextView
+                android:id="@+id/textView_title_release_date"
+                style="@style/TextViewSmallWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:layout_marginTop="@dimen/margin_large"
+                android:text="@string/release_date"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
+                app:layout_constraintTop_toBottomOf="@+id/textView_average" />
 
-    </android.support.constraint.ConstraintLayout>
+            <TextView
+                android:id="@+id/textView_release_date"
+                style="@style/TextViewContentWhite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:layout_marginTop="@dimen/margin_normal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
+                app:layout_constraintTop_toBottomOf="@+id/textView_title_release_date"
+                tools:text="TextView" />
 
-</ScrollView>
+            <View
+                android:id="@+id/view_third_line"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:layout_marginTop="10dp"
+                android:background="@android:color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
+                app:layout_constraintTop_toBottomOf="@id/textView_release_date" />
+
+            <TextView
+                android:id="@+id/text_view_favorite_title"
+                style="@style/TextViewSmallWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_large"
+                android:gravity="center"
+                android:layout_marginBottom="@dimen/margin_normal"
+                android:text="@string/mark_as_favorite"
+                app:layout_constraintBottom_toBottomOf="@id/imageView_movie_picture"
+                app:layout_constraintEnd_toEndOf="@id/textView_overview"
+                app:layout_constraintStart_toEndOf="@id/imageView_movie_picture" />
+
+            <ImageView
+                android:id="@+id/image_view_ic_star"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/margin_large"
+                android:padding="@dimen/margin_normal"
+                android:src="@drawable/ic_star"
+                app:layout_constraintBottom_toBottomOf="@id/text_view_favorite_title"
+                app:layout_constraintEnd_toEndOf="@id/textView_overview"
+                app:layout_constraintStart_toEndOf="@id/imageView_movie_picture"
+                app:layout_constraintTop_toBottomOf="@+id/view_third_line" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </ScrollView>
+</android.support.constraint.ConstraintLayout>
