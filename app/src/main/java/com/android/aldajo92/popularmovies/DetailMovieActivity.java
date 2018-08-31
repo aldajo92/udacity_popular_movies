@@ -1,19 +1,16 @@
 package com.android.aldajo92.popularmovies;
 
-import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
-import com.android.aldajo92.popularmovies.db.MovieDatabase;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.utils.DateUtils;
 import com.squareup.picasso.Callback;
@@ -32,8 +29,14 @@ public class DetailMovieActivity extends AppCompatActivity {
     @BindView(R.id.imageView_movie_picture)
     ImageView imageView;
 
+    @BindView(R.id.image_view_ic_star)
+    ImageView imageViewStar;
+
     @BindView(R.id.textView_movie_title)
     TextView textViewMovieTitle;
+
+    @BindView(R.id.textView_title_original)
+    TextView textViewTitleOriginal;
 
     @BindView(R.id.textView_overview)
     TextView textViewSummary;
@@ -44,11 +47,13 @@ public class DetailMovieActivity extends AppCompatActivity {
     @BindView(R.id.textView_release_date)
     TextView textViewReleaseDate;
 
-    boolean isMarked = false;
-
-    private MovieDatabase mDb;
+    DetailMovieViewModel viewModel;
 
     MovieModel movieModel;
+
+    FavoriteMovieEntry movieEntry;
+
+    boolean isMarked = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,10 +61,9 @@ public class DetailMovieActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail_movie);
         ButterKnife.bind(this);
 
+        viewModel = new DetailMovieViewModel(getApplication());
         supportPostponeEnterTransition();
         Intent intent = getIntent();
-
-        mDb = MovieDatabase.getInstance(getApplication());
 
         if (intent.hasExtra(EXTRA_MOVIE_MODEL) && intent.hasExtra(EXTRA_IMAGE_TRANSITION_NAME)) {
             movieModel = intent.getParcelableExtra(EXTRA_MOVIE_MODEL);
@@ -69,7 +73,16 @@ public class DetailMovieActivity extends AppCompatActivity {
                 imageView.setTransitionName(imageTransitionName);
             }
 
-            LiveData<FavoriteMovieEntry> favoriteMovieById = mDb.favoriteMovieDao().getFavoriteMovieById(movieModel.getId());
+            viewModel.getFavoriteMovie(movieModel.getId()).observe(this, new Observer<FavoriteMovieEntry>() {
+                @Override
+                public void onChanged(@Nullable FavoriteMovieEntry favoriteMovieEntry) {
+                    isMarked = favoriteMovieEntry != null;
+                    if(isMarked){
+                        movieEntry = favoriteMovieEntry;
+                    }
+                    updateMark();
+                }
+            });
             setupUI(movieModel);
         }
     }
@@ -90,7 +103,7 @@ public class DetailMovieActivity extends AppCompatActivity {
                     }
                 });
 
-        textViewMovieTitle.setText(movieModel.getName());
+        textViewTitleOriginal.setText(movieModel.getName());
         textViewSummary.setText(movieModel.getOverview());
         textViewAverage.setText(movieModel.getAverage());
         String releaseDate = movieModel.getReleaseDate();
@@ -103,14 +116,39 @@ public class DetailMovieActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.image_view_ic_star)
-    public void onFavoriteClicked(ImageView imageView){
-        isMarked = !isMarked;
-        if (isMarked){
-            imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_star_marked));
-//            movieModel.
-            mDb.favoriteMovieDao().insertFavoriteMovie(new FavoriteMovieEntry(movieModel.getId(), movieModel.getName()));
+    public void onFavoriteClicked() {
+        if (isMarked) {
+            removeFavoriteMovie(movieEntry);
         } else {
-            imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_star));
+            saveFavoriteMovie(new FavoriteMovieEntry(movieModel.getId(), movieModel.getName()));
         }
     }
+
+    private void saveFavoriteMovie(final FavoriteMovieEntry movieEntry) {
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                viewModel.database.favoriteMovieDao().insertFavoriteMovie(movieEntry);
+            }
+        });
+    }
+
+    private void removeFavoriteMovie(final FavoriteMovieEntry movieEntry){
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                viewModel.database.favoriteMovieDao().deleteFavoriteMovie(movieEntry);
+                isMarked = false;
+            }
+        });
+    }
+
+    private void updateMark(){
+        if (isMarked) {
+            imageViewStar.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_star_marked));
+        } else {
+            imageViewStar.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_star));
+        }
+    }
+
 }
