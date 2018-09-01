@@ -2,29 +2,47 @@ package com.android.aldajo92.popularmovies;
 
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
+import com.android.aldajo92.popularmovies.adapter.detail.VideosAdapter;
+import com.android.aldajo92.popularmovies.adapter.reviews.ReviewsAdapter;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
+import com.android.aldajo92.popularmovies.models.MoviesReviewResponse;
+import com.android.aldajo92.popularmovies.models.ReviewModel;
+import com.android.aldajo92.popularmovies.models.VideoModel;
+import com.android.aldajo92.popularmovies.viewmodel.DetailMovieViewModel;
 import com.android.aldajo92.popularmovies.models.MovieModel;
+import com.android.aldajo92.popularmovies.models.MoviesVideoResponse;
 import com.android.aldajo92.popularmovies.utils.DateUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Response;
 
 import static com.android.aldajo92.popularmovies.network.NetworkManager.IMAGE_HD_BASE_URL;
+import static com.android.aldajo92.popularmovies.newnetwork.NetworkConstants.YOUTUBE_BASE_URL;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
 
-public class DetailMovieActivity extends AppCompatActivity {
+public class DetailMovieActivity extends AppCompatActivity implements ItemClickedListener<VideoModel> {
 
     @BindView(R.id.imageView_movie_picture)
     ImageView imageView;
@@ -47,11 +65,21 @@ public class DetailMovieActivity extends AppCompatActivity {
     @BindView(R.id.textView_release_date)
     TextView textViewReleaseDate;
 
-    DetailMovieViewModel viewModel;
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
 
-    MovieModel movieModel;
+    @BindView(R.id.recyclerView_reviews)
+    RecyclerView recyclerViewReviews;
 
-    FavoriteMovieEntry movieEntry;
+    private VideosAdapter videoAdapter;
+
+    private ReviewsAdapter reviewsAdapter;
+
+    private DetailMovieViewModel viewModel;
+
+    private MovieModel movieModel;
+
+    private FavoriteMovieEntry movieEntry;
 
     boolean isMarked = false;
 
@@ -77,13 +105,55 @@ public class DetailMovieActivity extends AppCompatActivity {
                 @Override
                 public void onChanged(@Nullable FavoriteMovieEntry favoriteMovieEntry) {
                     isMarked = favoriteMovieEntry != null;
-                    if(isMarked){
+                    if (isMarked) {
                         movieEntry = favoriteMovieEntry;
                     }
                     updateMark();
                 }
             });
+
+            viewModel.getIsMarked().observe(this, new Observer<Boolean>() {
+                @Override
+                public void onChanged(Boolean marked) {
+                    isMarked = marked;
+                    updateMark();
+                }
+            });
+
+            viewModel.requestMovies(movieModel.getId()).enqueue(new retrofit2.Callback<MoviesVideoResponse>() {
+                @Override
+                public void onResponse(Call<MoviesVideoResponse> call, @NonNull Response<MoviesVideoResponse> response) {
+                    MoviesVideoResponse moviesResponse = response.body();
+                    if (moviesResponse != null) {
+                        List<VideoModel> moviesVideoList = moviesResponse.getMovies();
+                        videoAdapter.addItems(moviesVideoList);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<MoviesVideoResponse> call, Throwable t) {
+
+                }
+            });
+
+            viewModel.requestReviews(movieModel.getId()).enqueue(new retrofit2.Callback<MoviesReviewResponse>() {
+                @Override
+                public void onResponse(Call<MoviesReviewResponse> call, Response<MoviesReviewResponse> response) {
+                    MoviesReviewResponse reviewResponse = response.body();
+                    if (reviewResponse != null) {
+                        List<ReviewModel> reviewList = reviewResponse.getReviews();
+                        reviewsAdapter.addItems(reviewList);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<MoviesReviewResponse> call, Throwable t) {
+                    android.util.Log.i("ADJ", "");
+                }
+            });
+
             setupUI(movieModel);
+            initRecyclerView();
         }
     }
 
@@ -115,35 +185,38 @@ public class DetailMovieActivity extends AppCompatActivity {
         textViewReleaseDate.setText(readableReleaseDate);
     }
 
+    private void initRecyclerView() {
+        videoAdapter = new VideosAdapter(this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(videoAdapter);
+
+        reviewsAdapter = new ReviewsAdapter(new ItemClickedListener<ReviewModel>() {
+            @Override
+            public void itemClicked(ReviewModel data, int position, View imageView) {
+
+            }
+        });
+        recyclerViewReviews.setLayoutManager(
+                new LinearLayoutManager(
+                        this,
+                        LinearLayoutManager.HORIZONTAL,
+                        false)
+        );
+        recyclerViewReviews.setAdapter(reviewsAdapter);
+
+
+    }
+
     @OnClick(R.id.image_view_ic_star)
     public void onFavoriteClicked() {
         if (isMarked) {
-            removeFavoriteMovie(movieEntry);
+            viewModel.removeFavoriteMovie(movieEntry);
         } else {
-            saveFavoriteMovie(new FavoriteMovieEntry(movieModel.getId(), movieModel.getName()));
+            viewModel.saveFavoriteMovie(new FavoriteMovieEntry(movieModel.getId(), movieModel.getName()));
         }
     }
 
-    private void saveFavoriteMovie(final FavoriteMovieEntry movieEntry) {
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                viewModel.database.favoriteMovieDao().insertFavoriteMovie(movieEntry);
-            }
-        });
-    }
-
-    private void removeFavoriteMovie(final FavoriteMovieEntry movieEntry){
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                viewModel.database.favoriteMovieDao().deleteFavoriteMovie(movieEntry);
-                isMarked = false;
-            }
-        });
-    }
-
-    private void updateMark(){
+    private void updateMark() {
         if (isMarked) {
             imageViewStar.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_star_marked));
         } else {
@@ -151,4 +224,8 @@ public class DetailMovieActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void itemClicked(VideoModel data, int position, View imageView) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_BASE_URL + data.getKey())));
+    }
 }

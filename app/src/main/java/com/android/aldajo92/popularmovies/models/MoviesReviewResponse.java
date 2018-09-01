@@ -5,11 +5,11 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoviesModelResponse {
+public class MoviesReviewResponse {
     @SerializedName("results")
-    List<MovieModel> movies = new ArrayList<>();
+    List<ReviewModel> reviews = new ArrayList<>();
 
-    public List<MovieModel> getMovies() {
-        return movies;
+    public List<ReviewModel> getReviews() {
+        return reviews;
     }
 }

@@ -30,9 +30,9 @@ class ItemMovieHolder extends RecyclerView.ViewHolder implements View.OnClickLis
     ImageView imageViewPicture;
 
     private MovieModel model;
-    private MovieItemListener listener;
+    private ItemClickedListener listener;
 
-    public ItemMovieHolder(View itemView, MovieItemListener listener) {
+    public ItemMovieHolder(View itemView, ItemClickedListener listener) {
         super(itemView);
         ButterKnife.bind(this, itemView);
         itemView.setOnClickListener(this);

@@ -43,6 +43,19 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_large">
 
+            <TextView
+                android:id="@+id/textView_title_original"
+                style="@style/TextViewTitleWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Title" />
+
             <ImageView
                 android:id="@+id/imageView_movie_picture"
                 android:layout_width="200dp"
@@ -52,50 +65,8 @@
                 android:layout_marginStart="@dimen/margin_large"
                 android:layout_marginTop="@dimen/margin_large"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/view_line"
+                app:layout_constraintTop_toBottomOf="@+id/textView_title_original"
                 tools:background="@android:color/white" />
-
-            <TextView
-                android:id="@+id/textView_title_original"
-                style="@style/TextViewTitleWhite"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_large"
-                android:layout_marginStart="@dimen/margin_large"
-                android:layout_marginTop="@dimen/margin_large"
-                android:gravity="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView_movie_picture"
-                tools:text="Title" />
-
-            <TextView
-                android:id="@+id/textView_title_overview"
-                style="@style/TextViewTitleWhite"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_large"
-                android:layout_marginStart="@dimen/margin_large"
-                android:layout_marginTop="@dimen/margin_large"
-                android:text="@string/overview"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView_title_original" />
-
-            <TextView
-                android:id="@+id/textView_overview"
-                style="@style/TextViewContentWhite"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/margin_large"
-                android:layout_marginEnd="@dimen/margin_large"
-                android:layout_marginStart="@dimen/margin_large"
-                android:layout_marginTop="@dimen/margin_normal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView_title_overview"
-                tools:text="Overview" />
 
             <TextView
                 android:id="@+id/textView_title_average"
@@ -197,7 +168,77 @@
                 app:layout_constraintStart_toEndOf="@id/imageView_movie_picture"
                 app:layout_constraintTop_toBottomOf="@+id/view_third_line" />
 
+            <TextView
+                android:id="@+id/textView_title_overview"
+                style="@style/TextViewTitleWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_large"
+                android:text="@string/overview"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView_movie_picture" />
+
+            <TextView
+                android:id="@+id/textView_overview"
+                style="@style/TextViewContentWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_large"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_normal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView_title_overview"
+                tools:text="Overview" />
+
+            <TextView
+                android:id="@+id/textView_title_reviews"
+                style="@style/TextViewTitleWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_normal"
+                android:text="@string/reviews"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView_overview" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_normal"
+                app:layout_constraintTop_toBottomOf="@+id/textView_title_reviews" />
+
+            <TextView
+                android:id="@+id/textView_title_trailers"
+                style="@style/TextViewTitleWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_normal"
+                android:text="@string/trailers"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/recyclerView_reviews" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_normal"
+                app:layout_constraintTop_toBottomOf="@+id/textView_title_trailers" />
+
         </android.support.constraint.ConstraintLayout>
 
     </ScrollView>
+
 </android.support.constraint.ConstraintLayout>

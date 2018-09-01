@@ -3,6 +3,7 @@
 
     <dimen name="margin_normal">8dp</dimen>
     <dimen name="margin_large">22dp</dimen>
+    <dimen name="margin_xlarge">30dp</dimen>
 
     <dimen name="width_image_home">120dp</dimen>
     <dimen name="height_image_home">150dp</dimen>

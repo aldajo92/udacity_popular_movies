@@ -20,12 +20,13 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.aldajo92.popularmovies.adapter.MovieItemListener;
+import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
 import com.android.aldajo92.popularmovies.adapter.MoviesAdapter;
 import com.android.aldajo92.popularmovies.adapter.PaginationMoviesScrollListener;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.models.MoviesModelResponse;
+import com.android.aldajo92.popularmovies.viewmodel.MainViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +42,7 @@ import static com.android.aldajo92.popularmovies.network.NetworkManager.TOP_RATE
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
 
-public class MainActivity extends AppCompatActivity implements MovieItemListener {
-
-    private static String TAG = MainActivity.class.getName();
+public class MainActivity extends AppCompatActivity implements ItemClickedListener<MovieModel> {
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -193,15 +192,15 @@ public class MainActivity extends AppCompatActivity implements MovieItemListener
     }
 
     @Override
-    public void itemClicked(MovieModel movieModel, int position, ImageView imageView) {
+    public void itemClicked(MovieModel movieModel, int position, View view) {
         Intent intent = new Intent(this, DetailMovieActivity.class);
         intent.putExtra(EXTRA_MOVIE_MODEL, movieModel);
-        intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(imageView));
+        intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(view));
 
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this,
-                imageView,
-                ViewCompat.getTransitionName(imageView));
+                view,
+                ViewCompat.getTransitionName(view));
 
         startActivity(intent, options.toBundle());
     }
