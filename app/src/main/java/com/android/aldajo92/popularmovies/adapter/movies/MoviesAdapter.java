@@ -1,4 +1,4 @@
-package com.android.aldajo92.popularmovies.adapter;
+package com.android.aldajo92.popularmovies.adapter.movies;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.aldajo92.popularmovies.R;
+import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 
 import java.util.ArrayList;
