@@ -5,47 +5,77 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
-import com.android.aldajo92.popularmovies.db.MovieDatabase;
+import com.android.aldajo92.popularmovies.MainViewListener;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
+import com.android.aldajo92.popularmovies.db.MovieDatabase;
 import com.android.aldajo92.popularmovies.models.MoviesModelResponse;
-import com.android.aldajo92.popularmovies.newnetwork.MoviesAPI;
-import com.android.aldajo92.popularmovies.newnetwork.MoviesService;
+import com.android.aldajo92.popularmovies.network.MoviesAPI;
+import com.android.aldajo92.popularmovies.network.MoviesService;
 
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.android.aldajo92.popularmovies.utils.Constants.MOVIE_PARAM;
 
 public class MainViewModel extends AndroidViewModel {
 
-    private LiveData<List<FavoriteMovieEntry>> tasks;
+    private MainViewListener listener;
+
+    private LiveData<List<FavoriteMovieEntry>> favoriteMoviesEntries;
 
     private MoviesAPI moviesApi;
 
-    private MovieDatabase mDb;
+    private String selectedFilter = MOVIE_PARAM;
 
-    public MainViewModel(@NonNull Application application) {
+    public MainViewModel(@NonNull Application application, MainViewListener listener) {
         super(application);
 
-        MovieDatabase database = MovieDatabase.getInstance(this.getApplication());
-        tasks = database.favoriteMovieDao().getFavoritesMovies();
+        this.listener = listener;
 
-        mDb = MovieDatabase.getInstance(application);
+        MovieDatabase database = MovieDatabase.getInstance(this.getApplication());
+        favoriteMoviesEntries = database.favoriteMovieDao().getFavoritesMovies();
+
         moviesApi = MoviesService.getClient().create(MoviesAPI.class);
     }
 
-    public LiveData<List<FavoriteMovieEntry>> getFavoritesMoviesFromDb() {
-        return mDb.favoriteMovieDao().getFavoritesMovies();
+    public LiveData<List<FavoriteMovieEntry>> getFavoriteMovieEntries() {
+        return favoriteMoviesEntries;
     }
 
-    public LiveData<List<FavoriteMovieEntry>> getTasks() {
-        return tasks;
+    public void getMovieList() {
+        listener.clearList();
+        getMoviesByPage(selectedFilter, 1);
     }
 
-    public Call<MoviesModelResponse> getMovies(String filter) {
-        return moviesApi.getMovies(filter, 1);
+    public void getMoviesListByPage(int page){
+        getMoviesByPage(selectedFilter, page);
     }
 
-    public Call<MoviesModelResponse> getMoviesByPagination(String filter, int page) {
-        return moviesApi.getMovies(filter, page);
+    private void getMoviesByPage(String filter, int page) {
+        listener.showLoader();
+        Call<MoviesModelResponse> call = moviesApi.getMovies(filter, page);
+        call.enqueue(new Callback<MoviesModelResponse>() {
+            @Override
+            public void onResponse(Call<MoviesModelResponse> call, Response<MoviesModelResponse> response) {
+                listener.hideLoader();
+                MoviesModelResponse moviesModelResponse = response.body();
+                if (moviesModelResponse != null) {
+                    listener.handleResponse(moviesModelResponse.getMovies());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MoviesModelResponse> call, Throwable t) {
+                listener.hideLoader();
+                listener.showNetworkError();
+            }
+        });
+    }
+
+    public void setSelectedFilter(String selectedFilter) {
+        this.selectedFilter = selectedFilter;
     }
 }

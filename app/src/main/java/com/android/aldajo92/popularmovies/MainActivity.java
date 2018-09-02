@@ -1,6 +1,5 @@
 package com.android.aldajo92.popularmovies;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.Color;
@@ -25,7 +24,6 @@ import com.android.aldajo92.popularmovies.adapter.MoviesAdapter;
 import com.android.aldajo92.popularmovies.adapter.PaginationMoviesScrollListener;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.models.MovieModel;
-import com.android.aldajo92.popularmovies.models.MoviesModelResponse;
 import com.android.aldajo92.popularmovies.viewmodel.MainViewModel;
 
 import java.util.ArrayList;
@@ -33,16 +31,13 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-import static com.android.aldajo92.popularmovies.network.NetworkManager.MOVIE_PARAM;
-import static com.android.aldajo92.popularmovies.network.NetworkManager.TOP_RATED_PARAM;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
+import static com.android.aldajo92.popularmovies.utils.Constants.MOVIE_PARAM;
+import static com.android.aldajo92.popularmovies.utils.Constants.TOP_RATED_PARAM;
 
-public class MainActivity extends AppCompatActivity implements ItemClickedListener<MovieModel> {
+public class MainActivity extends AppCompatActivity implements ItemClickedListener<MovieModel>, MainViewListener {
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -62,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
     List<MovieModel> movieModelList = new ArrayList<>();
 
     int selectedFilterID = R.id.action_filter_popular;
-    String selectedFilter = MOVIE_PARAM;
 
     private MainViewModel viewModel;
 
@@ -74,25 +68,19 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        viewModel = new MainViewModel(this.getApplication());
+        viewModel = new MainViewModel(this.getApplication(), this);
 
         if (savedInstanceState == null) {
             createAlertDialog();
             initRecyclerView();
             initListeners();
-            getFirstMovieList(MOVIE_PARAM);
+            viewModel.getMovieList();
         }
 
-        initDatabase();
-    }
-
-    private void initDatabase() {
-        LiveData<List<FavoriteMovieEntry>> tasks = viewModel.getFavoritesMoviesFromDb();
-        tasks.observe(this, new Observer<List<FavoriteMovieEntry>>() {
+        viewModel.getFavoriteMovieEntries().observe(this, new Observer<List<FavoriteMovieEntry>>() {
             @Override
-            public void onChanged(@Nullable List<FavoriteMovieEntry> taskEntries) {
-//                Log.d(TAG, "Receiving database update from LiveData");
-//                mAdapter.setTasks(taskEntries);
+            public void onChanged(@Nullable List<FavoriteMovieEntry> favoriteMovieEntries) {
+                android.util.Log.i("adj", Integer.toString(favoriteMovieEntries.size()));
             }
         });
     }
@@ -120,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
         scrollListener = new PaginationMoviesScrollListener(gridLayoutManager, 6) {
             @Override
             public void onLoadMore(int currentPage, int totalItemCount) {
-                getMoviesByPage(selectedFilter, currentPage + 1);
+                viewModel.getMoviesListByPage(currentPage + 1);
             }
         };
 
@@ -131,50 +119,26 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
         buttonTryAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getFirstMovieList(selectedFilter);
+                viewModel.getMovieList();
             }
         });
     }
 
-    private void getFirstMovieList(String filter) {
-        movieModelList.clear();
-        scrollListener.resetPagination();
-        getMoviesByPage(filter, 1);
-    }
-
-    private void getMoviesByPage(String filter, int page) {
-        showLoader();
-        Call<MoviesModelResponse> call = viewModel.getMoviesByPagination(filter, page);
-        call.enqueue(new Callback<MoviesModelResponse>() {
-            @Override
-            public void onResponse(Call<MoviesModelResponse> call, Response<MoviesModelResponse> response) {
-                hideLoader();
-                MoviesModelResponse moviesModelResponse = response.body();
-                if (moviesModelResponse != null) {
-                    handleResponse(moviesModelResponse.getMovies());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MoviesModelResponse> call, Throwable t) {
-                hideLoader();
-                showNetworkError();
-            }
-        });
-    }
-
-    private void showLoader() {
+    @Override
+    public void showLoader() {
         if (alertDialog != null) {
             alertDialog.show();
         }
     }
 
-    private void hideLoader() {
+    @Override
+    public void hideLoader() {
         if (alertDialog != null) {
             alertDialog.dismiss();
         }
     }
 
+    @Override
     public void handleResponse(List<MovieModel> movies) {
         movieModelList.addAll(movies);
         recyclerView.setVisibility(View.VISIBLE);
@@ -184,7 +148,14 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
         adapter.addItems(movieModelList);
     }
 
-    private void showNetworkError() {
+    @Override
+    public void clearList() {
+        movieModelList.clear();
+        scrollListener.resetPagination();
+    }
+
+    @Override
+    public void showNetworkError() {
         recyclerView.setVisibility(View.GONE);
         textViewNoInternet.setVisibility(View.VISIBLE);
         imageViewNoInternet.setVisibility(View.VISIBLE);
@@ -218,17 +189,15 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
             selectedFilterID = itemId;
             switch (itemId) {
                 case R.id.action_filter_popular:
-                    selectedFilter = MOVIE_PARAM;
-                    getFirstMovieList(MOVIE_PARAM);
+                    viewModel.setSelectedFilter(MOVIE_PARAM);
+                    viewModel.getMovieList();
                     return true;
                 case R.id.filter_top_rated:
-                    selectedFilter = TOP_RATED_PARAM;
-                    getFirstMovieList(TOP_RATED_PARAM);
+                    viewModel.setSelectedFilter(TOP_RATED_PARAM);
+                    viewModel.getMovieList();
                     return true;
-                case R.id.favorites:
-//                    selectedFilter = TOP_RATED_PARAM;
-//                    getFirstMovieList(TOP_RATED_PARAM);
-                    return true;
+                case R.id.filter_favorites:
+
                 default:
                     return super.onOptionsItemSelected(item);
             }

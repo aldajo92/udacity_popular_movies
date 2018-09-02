@@ -1,6 +1,4 @@
-package com.android.aldajo92.popularmovies.newnetwork;
-
-import android.support.annotation.NonNull;
+package com.android.aldajo92.popularmovies.network;
 
 import com.android.aldajo92.popularmovies.utils.Constants;
 
@@ -14,8 +12,8 @@ import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.android.aldajo92.popularmovies.newnetwork.NetworkConstants.API_KEY_PARAM;
-import static com.android.aldajo92.popularmovies.newnetwork.NetworkConstants.BASE_URL;
+import static com.android.aldajo92.popularmovies.network.NetworkConstants.API_KEY_PARAM;
+import static com.android.aldajo92.popularmovies.network.NetworkConstants.BASE_URL;
 
 public class MoviesService {
 

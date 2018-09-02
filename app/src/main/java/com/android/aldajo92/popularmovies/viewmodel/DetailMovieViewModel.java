@@ -10,8 +10,8 @@ import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.db.MovieDatabase;
 import com.android.aldajo92.popularmovies.models.MoviesReviewResponse;
 import com.android.aldajo92.popularmovies.models.MoviesVideoResponse;
-import com.android.aldajo92.popularmovies.newnetwork.MoviesAPI;
-import com.android.aldajo92.popularmovies.newnetwork.MoviesService;
+import com.android.aldajo92.popularmovies.network.MoviesAPI;
+import com.android.aldajo92.popularmovies.network.MoviesService;
 
 import retrofit2.Call;
 
