@@ -225,6 +225,10 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
                     selectedFilter = TOP_RATED_PARAM;
                     getFirstMovieList(TOP_RATED_PARAM);
                     return true;
+                case R.id.favorites:
+//                    selectedFilter = TOP_RATED_PARAM;
+//                    getFirstMovieList(TOP_RATED_PARAM);
+                    return true;
                 default:
                     return super.onOptionsItemSelected(item);
             }

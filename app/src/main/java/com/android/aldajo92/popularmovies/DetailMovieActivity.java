@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -13,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
@@ -64,6 +66,12 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
 
     @BindView(R.id.textView_release_date)
     TextView textViewReleaseDate;
+
+    @BindView(R.id.textView_title_reviews)
+    TextView textViewTitleReview;
+
+    @BindView(R.id.textView_title_trailers)
+    TextView textViewTitleTrailers;
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -126,7 +134,16 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
                     MoviesVideoResponse moviesResponse = response.body();
                     if (moviesResponse != null) {
                         List<VideoModel> moviesVideoList = moviesResponse.getMovies();
-                        videoAdapter.addItems(moviesVideoList);
+                        if (!moviesVideoList.isEmpty()){
+                            videoAdapter.addItems(moviesVideoList);
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    recyclerView.setVisibility(View.VISIBLE);
+                                    textViewTitleTrailers.setVisibility(View.VISIBLE);
+                                }
+                            }, 500);
+                        }
                     }
                 }
 
@@ -142,7 +159,16 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
                     MoviesReviewResponse reviewResponse = response.body();
                     if (reviewResponse != null) {
                         List<ReviewModel> reviewList = reviewResponse.getReviews();
-                        reviewsAdapter.addItems(reviewList);
+                        if (!reviewList.isEmpty()){
+                            reviewsAdapter.addItems(reviewList);
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    recyclerViewReviews.setVisibility(View.VISIBLE);
+                                    textViewTitleReview.setVisibility(View.VISIBLE);
+                                }
+                            }, 500);
+                        }
                     }
                 }
 
@@ -187,7 +213,12 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
 
     private void initRecyclerView() {
         videoAdapter = new VideosAdapter(this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(
+                new LinearLayoutManager(
+                        this,
+                        LinearLayoutManager.HORIZONTAL,
+                        false)
+        );
         recyclerView.setAdapter(videoAdapter);
 
         reviewsAdapter = new ReviewsAdapter(new ItemClickedListener<ReviewModel>() {
@@ -203,7 +234,6 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
                         false)
         );
         recyclerViewReviews.setAdapter(reviewsAdapter);
-
 
     }
 
