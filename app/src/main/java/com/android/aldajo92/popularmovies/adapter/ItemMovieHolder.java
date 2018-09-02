@@ -16,7 +16,7 @@ import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.android.aldajo92.popularmovies.network.NetworkManager.IMAGE_BASE_URL;
+import static com.android.aldajo92.popularmovies.utils.Constants.IMAGE_BASE_URL;
 
 class ItemMovieHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 

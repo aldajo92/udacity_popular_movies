@@ -1,4 +1,4 @@
-package com.android.aldajo92.popularmovies.newnetwork;
+package com.android.aldajo92.popularmovies.network;
 
 import retrofit2.http.GET;
 

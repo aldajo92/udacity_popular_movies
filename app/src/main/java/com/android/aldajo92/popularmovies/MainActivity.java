@@ -1,12 +1,9 @@
 package com.android.aldajo92.popularmovies;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
@@ -23,7 +20,6 @@ import android.widget.TextView;
 import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
 import com.android.aldajo92.popularmovies.adapter.MoviesAdapter;
 import com.android.aldajo92.popularmovies.adapter.PaginationMoviesScrollListener;
-import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.viewmodel.MainViewModel;
 
@@ -33,10 +29,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.android.aldajo92.popularmovies.network.NetworkManager.MOVIE_PARAM;
-import static com.android.aldajo92.popularmovies.network.NetworkManager.TOP_RATED_PARAM;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
+import static com.android.aldajo92.popularmovies.utils.Constants.MOVIE_PARAM;
+import static com.android.aldajo92.popularmovies.utils.Constants.TOP_RATED_PARAM;
 
 public class MainActivity extends AppCompatActivity implements ItemClickedListener<MovieModel>, MainViewListener {
 
@@ -77,24 +73,6 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
             initListeners();
             viewModel.getMovieList();
         }
-
-        initLiveData();
-        initDatabase();
-    }
-
-    private void initLiveData() {
-
-    }
-
-    private void initDatabase() {
-        LiveData<List<FavoriteMovieEntry>> tasks = viewModel.getFavoritesMoviesFromDb();
-        tasks.observe(this, new Observer<List<FavoriteMovieEntry>>() {
-            @Override
-            public void onChanged(@Nullable List<FavoriteMovieEntry> taskEntries) {
-//                Log.d(TAG, "Receiving database update from LiveData");
-//                mAdapter.setTasks(taskEntries);
-            }
-        });
     }
 
     private void createAlertDialog() {
@@ -151,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
     }
 
     @Override
-    public  void handleResponse(List<MovieModel> movies) {
+    public void handleResponse(List<MovieModel> movies) {
         movieModelList.addAll(movies);
         recyclerView.setVisibility(View.VISIBLE);
         textViewNoInternet.setVisibility(View.GONE);
@@ -167,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
     }
 
     @Override
-    public  void showNetworkError() {
+    public void showNetworkError() {
         recyclerView.setVisibility(View.GONE);
         textViewNoInternet.setVisibility(View.VISIBLE);
         imageViewNoInternet.setVisibility(View.VISIBLE);

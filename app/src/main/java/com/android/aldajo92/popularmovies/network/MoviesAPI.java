@@ -1,10 +1,8 @@
-package com.android.aldajo92.popularmovies.newnetwork;
+package com.android.aldajo92.popularmovies.network;
 
 import com.android.aldajo92.popularmovies.models.MoviesModelResponse;
 import com.android.aldajo92.popularmovies.models.MoviesReviewResponse;
 import com.android.aldajo92.popularmovies.models.MoviesVideoResponse;
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

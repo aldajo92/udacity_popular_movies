@@ -1,4 +1,4 @@
-package com.android.aldajo92.popularmovies.newnetwork;
+package com.android.aldajo92.popularmovies.network;
 
 public class NetworkConstants {
     public static final String BASE_URL = "https://api.themoviedb.org";

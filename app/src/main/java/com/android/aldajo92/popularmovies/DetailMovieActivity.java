@@ -38,10 +38,10 @@ import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import static com.android.aldajo92.popularmovies.network.NetworkManager.IMAGE_HD_BASE_URL;
-import static com.android.aldajo92.popularmovies.newnetwork.NetworkConstants.YOUTUBE_BASE_URL;
+import static com.android.aldajo92.popularmovies.network.NetworkConstants.YOUTUBE_BASE_URL;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
+import static com.android.aldajo92.popularmovies.utils.Constants.IMAGE_HD_BASE_URL;
 
 public class DetailMovieActivity extends AppCompatActivity implements ItemClickedListener<VideoModel> {
 
@@ -133,7 +133,7 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
                     MoviesVideoResponse moviesResponse = response.body();
                     if (moviesResponse != null) {
                         List<VideoModel> moviesVideoList = moviesResponse.getMovies();
-                        if (!moviesVideoList.isEmpty()){
+                        if (!moviesVideoList.isEmpty()) {
                             videoAdapter.addItems(moviesVideoList);
                             new Handler().postDelayed(new Runnable() {
                                 @Override
@@ -158,7 +158,7 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
                     MoviesReviewResponse reviewResponse = response.body();
                     if (reviewResponse != null) {
                         List<ReviewModel> reviewList = reviewResponse.getReviews();
-                        if (!reviewList.isEmpty()){
+                        if (!reviewList.isEmpty()) {
                             reviewsAdapter.addItems(reviewList);
                             new Handler().postDelayed(new Runnable() {
                                 @Override
