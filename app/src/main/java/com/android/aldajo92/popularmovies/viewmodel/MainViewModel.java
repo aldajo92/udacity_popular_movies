@@ -3,13 +3,11 @@ package com.android.aldajo92.popularmovies.viewmodel;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.android.aldajo92.popularmovies.MainViewListener;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.db.MovieDatabase;
-import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.models.MoviesModelResponse;
 import com.android.aldajo92.popularmovies.network.MoviesAPI;
 import com.android.aldajo92.popularmovies.network.MoviesService;
@@ -26,13 +24,9 @@ public class MainViewModel extends AndroidViewModel {
 
     private MainViewListener listener;
 
-    private LiveData<List<FavoriteMovieEntry>> tasks;
-
-    private LiveData<List<MovieModel>> listLiveDataMovies;
+    private LiveData<List<FavoriteMovieEntry>> favoriteMoviesEntries;
 
     private MoviesAPI moviesApi;
-
-    private MovieDatabase mDb;
 
     private String selectedFilter = MOVIE_PARAM;
 
@@ -42,35 +36,13 @@ public class MainViewModel extends AndroidViewModel {
         this.listener = listener;
 
         MovieDatabase database = MovieDatabase.getInstance(this.getApplication());
-        tasks = database.favoriteMovieDao().getFavoritesMovies();
+        favoriteMoviesEntries = database.favoriteMovieDao().getFavoritesMovies();
 
-        listLiveDataMovies = new MutableLiveData<>();
-
-        mDb = MovieDatabase.getInstance(application);
         moviesApi = MoviesService.getClient().create(MoviesAPI.class);
     }
 
-    private void initDatabase() {
-        LiveData<List<FavoriteMovieEntry>> tasks = mDb.favoriteMovieDao().getFavoritesMovies();
-//        tasks.observe(this, new Observer<List<FavoriteMovieEntry>>() {
-//            @Override
-//            public void onChanged(@Nullable List<FavoriteMovieEntry> taskEntries) {
-////                Log.d(TAG, "Receiving database update from LiveData");
-////                mAdapter.setTasks(taskEntries);
-//            }
-//        });
-    }
-
-    public LiveData<List<FavoriteMovieEntry>> getTasks() {
-        return tasks;
-    }
-
-    public Call<MoviesModelResponse> getMovies(String filter) {
-        return moviesApi.getMovies(filter, 1);
-    }
-
-    public Call<MoviesModelResponse> getMoviesByPagination(String filter, int page) {
-        return moviesApi.getMovies(filter, page);
+    public LiveData<List<FavoriteMovieEntry>> getFavoriteMovieEntries() {
+        return favoriteMoviesEntries;
     }
 
     public void getMovieList() {
@@ -82,9 +54,9 @@ public class MainViewModel extends AndroidViewModel {
         getMoviesByPage(selectedFilter, page);
     }
 
-    public void getMoviesByPage(String filter, int page) {
+    private void getMoviesByPage(String filter, int page) {
         listener.showLoader();
-        Call<MoviesModelResponse> call = getMoviesByPagination(filter, page);
+        Call<MoviesModelResponse> call = moviesApi.getMovies(filter, page);
         call.enqueue(new Callback<MoviesModelResponse>() {
             @Override
             public void onResponse(Call<MoviesModelResponse> call, Response<MoviesModelResponse> response) {

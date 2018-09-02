@@ -1,9 +1,11 @@
 package com.android.aldajo92.popularmovies;
 
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
 import com.android.aldajo92.popularmovies.adapter.MoviesAdapter;
 import com.android.aldajo92.popularmovies.adapter.PaginationMoviesScrollListener;
+import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.viewmodel.MainViewModel;
 
@@ -73,6 +76,13 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
             initListeners();
             viewModel.getMovieList();
         }
+
+        viewModel.getFavoriteMovieEntries().observe(this, new Observer<List<FavoriteMovieEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<FavoriteMovieEntry> favoriteMovieEntries) {
+                android.util.Log.i("adj", Integer.toString(favoriteMovieEntries.size()));
+            }
+        });
     }
 
     private void createAlertDialog() {
