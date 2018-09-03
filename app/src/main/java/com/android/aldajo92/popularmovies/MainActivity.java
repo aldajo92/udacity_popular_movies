@@ -1,11 +1,9 @@
 package com.android.aldajo92.popularmovies;
 
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -21,10 +19,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.fragments.CatalogMoviesFragment;
 import com.android.aldajo92.popularmovies.fragments.FavoritesMoviesFragment;
 import com.android.aldajo92.popularmovies.fragments.MoviesFragmentListener;
+import com.android.aldajo92.popularmovies.models.FavoriteMovieModel;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.viewmodel.MainViewModel;
 
@@ -32,7 +30,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Response;
 
+import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_FAVORITE_MOVIE_MODEL;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
 import static com.android.aldajo92.popularmovies.utils.Constants.MOVIE_PARAM;
@@ -216,5 +217,29 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
     @Override
     public void getMoviesListByPage(int page) {
         viewModel.getMoviesListByPage(page);
+    }
+
+    @Override
+    public void favoriteMovieClicked(FavoriteMovieModel movieModel) {
+        showLoader();
+        viewModel.requestMovie(movieModel.getId()).enqueue(new retrofit2.Callback<MovieModel>() {
+            @Override
+            public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
+                hideLoader();
+                MovieModel movieModel = response.body();
+                openDetailFromFavorite(movieModel);
+            }
+
+            @Override
+            public void onFailure(Call<MovieModel> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void openDetailFromFavorite(MovieModel movieModel){
+        Intent intent = new Intent(this, DetailMovieActivity.class);
+        intent.putExtra(EXTRA_FAVORITE_MOVIE_MODEL, movieModel);
+        startActivity(intent);
     }
 }

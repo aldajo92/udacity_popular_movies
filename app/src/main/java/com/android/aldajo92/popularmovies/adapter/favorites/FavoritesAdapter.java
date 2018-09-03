@@ -14,10 +14,10 @@ import java.util.List;
 
 public class FavoritesAdapter extends RecyclerView.Adapter<ItemFavoriteMovieHolder> {
 
-    private List<FavoriteMovieModel> list = new ArrayList<>();
-    private ItemClickedListener listener;
+    private List<FavoriteMovieModel> favoriteMovieModels = new ArrayList<>();
+    private ItemClickedListener<FavoriteMovieModel> listener;
 
-    public FavoritesAdapter(ItemClickedListener listener) {
+    public FavoritesAdapter(ItemClickedListener<FavoriteMovieModel> listener) {
         this.listener = listener;
     }
 
@@ -30,21 +30,25 @@ public class FavoritesAdapter extends RecyclerView.Adapter<ItemFavoriteMovieHold
 
     @Override
     public void onBindViewHolder(ItemFavoriteMovieHolder holder, int position) {
-        holder.bindData(list.get(position));
+        holder.bindData(favoriteMovieModels.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return favoriteMovieModels.size();
     }
 
     public void addItem(FavoriteMovieModel movieModel) {
-        list.add(movieModel);
+        favoriteMovieModels.add(movieModel);
     }
 
     public void addItems(List<FavoriteMovieModel> movieModelList) {
-        list = movieModelList;
+        favoriteMovieModels = movieModelList;
         notifyDataSetChanged();
+    }
+
+    public List<FavoriteMovieModel> getFavoriteMovieModels() {
+        return favoriteMovieModels;
     }
 
 }
