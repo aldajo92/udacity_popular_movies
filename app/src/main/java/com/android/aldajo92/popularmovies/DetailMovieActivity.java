@@ -24,14 +24,13 @@ import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
 import com.android.aldajo92.popularmovies.adapter.detail.VideosAdapter;
 import com.android.aldajo92.popularmovies.adapter.reviews.ReviewsAdapter;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
-import com.android.aldajo92.popularmovies.models.FavoriteMovieModel;
+import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.models.MoviesReviewResponse;
+import com.android.aldajo92.popularmovies.models.MoviesVideoResponse;
 import com.android.aldajo92.popularmovies.models.ReviewModel;
 import com.android.aldajo92.popularmovies.models.VideoModel;
-import com.android.aldajo92.popularmovies.viewmodel.DetailMovieViewModel;
-import com.android.aldajo92.popularmovies.models.MovieModel;
-import com.android.aldajo92.popularmovies.models.MoviesVideoResponse;
 import com.android.aldajo92.popularmovies.utils.DateUtils;
+import com.android.aldajo92.popularmovies.viewmodel.DetailMovieViewModel;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
