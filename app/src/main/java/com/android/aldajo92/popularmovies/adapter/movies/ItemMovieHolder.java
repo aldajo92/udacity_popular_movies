@@ -1,4 +1,4 @@
-package com.android.aldajo92.popularmovies.adapter;
+package com.android.aldajo92.popularmovies.adapter.movies;
 
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.aldajo92.popularmovies.R;
+import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.squareup.picasso.Picasso;
 

@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import com.android.aldajo92.popularmovies.MainViewListener;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.db.MovieDatabase;
+import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.models.MoviesModelResponse;
 import com.android.aldajo92.popularmovies.network.MoviesAPI;
 import com.android.aldajo92.popularmovies.network.MoviesService;
@@ -77,5 +78,9 @@ public class MainViewModel extends AndroidViewModel {
 
     public void setSelectedFilter(String selectedFilter) {
         this.selectedFilter = selectedFilter;
+    }
+
+    public Call<MovieModel> requestMovie(long id) {
+        return moviesApi.getMovie(id);
     }
 }

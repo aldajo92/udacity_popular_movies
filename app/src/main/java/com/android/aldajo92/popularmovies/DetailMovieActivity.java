@@ -20,6 +20,7 @@ import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
 import com.android.aldajo92.popularmovies.adapter.detail.VideosAdapter;
 import com.android.aldajo92.popularmovies.adapter.reviews.ReviewsAdapter;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
+import com.android.aldajo92.popularmovies.models.FavoriteMovieModel;
 import com.android.aldajo92.popularmovies.models.MoviesReviewResponse;
 import com.android.aldajo92.popularmovies.models.ReviewModel;
 import com.android.aldajo92.popularmovies.models.VideoModel;
@@ -39,6 +40,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import static com.android.aldajo92.popularmovies.network.NetworkConstants.YOUTUBE_BASE_URL;
+import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_FAVORITE_MOVIE_MODEL;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
 import static com.android.aldajo92.popularmovies.utils.Constants.IMAGE_HD_BASE_URL;
@@ -108,81 +110,96 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
                 imageView.setTransitionName(imageTransitionName);
             }
 
-            viewModel.getFavoriteMovie(movieModel.getId()).observe(this, new Observer<FavoriteMovieEntry>() {
-                @Override
-                public void onChanged(@Nullable FavoriteMovieEntry favoriteMovieEntry) {
-                    isMarked = favoriteMovieEntry != null;
-                    if (isMarked) {
-                        movieEntry = favoriteMovieEntry;
-                    }
-                    updateMark();
-                }
-            });
+        } else if (intent.hasExtra(EXTRA_FAVORITE_MOVIE_MODEL) && intent.hasExtra(EXTRA_FAVORITE_MOVIE_MODEL)) {
+            movieModel = intent.getParcelableExtra(EXTRA_FAVORITE_MOVIE_MODEL);
+        }
 
-            viewModel.getIsMarked().observe(this, new Observer<Boolean>() {
-                @Override
-                public void onChanged(Boolean marked) {
-                    isMarked = marked;
-                    updateMark();
-                }
-            });
+        initMovieActivity();
+    }
 
-            viewModel.requestMovies(movieModel.getId()).enqueue(new retrofit2.Callback<MoviesVideoResponse>() {
-                @Override
-                public void onResponse(Call<MoviesVideoResponse> call, @NonNull Response<MoviesVideoResponse> response) {
-                    MoviesVideoResponse moviesResponse = response.body();
-                    if (moviesResponse != null) {
-                        List<VideoModel> moviesVideoList = moviesResponse.getMovies();
-                        if (!moviesVideoList.isEmpty()) {
-                            videoAdapter.addItems(moviesVideoList);
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    recyclerView.setVisibility(View.VISIBLE);
-                                    textViewTitleTrailers.setVisibility(View.VISIBLE);
-                                }
-                            }, 500);
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<MoviesVideoResponse> call, Throwable t) {
-
-                }
-            });
-
-            viewModel.requestReviews(movieModel.getId()).enqueue(new retrofit2.Callback<MoviesReviewResponse>() {
-                @Override
-                public void onResponse(Call<MoviesReviewResponse> call, Response<MoviesReviewResponse> response) {
-                    MoviesReviewResponse reviewResponse = response.body();
-                    if (reviewResponse != null) {
-                        List<ReviewModel> reviewList = reviewResponse.getReviews();
-                        if (!reviewList.isEmpty()) {
-                            reviewsAdapter.addItems(reviewList);
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    recyclerViewReviews.setVisibility(View.VISIBLE);
-                                    textViewTitleReview.setVisibility(View.VISIBLE);
-                                }
-                            }, 500);
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<MoviesReviewResponse> call, Throwable t) {
-
-                }
-            });
-
-            setupUI(movieModel);
+    private void initMovieActivity() {
+        if (movieModel != null) {
+            initMark();
+            initExtraData();
+            setupUI();
             initRecyclerView();
         }
     }
 
-    private void setupUI(MovieModel movieModel) {
+    private void initMark() {
+        viewModel.getFavoriteMovie(movieModel.getId()).observe(this, new Observer<FavoriteMovieEntry>() {
+            @Override
+            public void onChanged(@Nullable FavoriteMovieEntry favoriteMovieEntry) {
+                isMarked = favoriteMovieEntry != null;
+                if (isMarked) {
+                    movieEntry = favoriteMovieEntry;
+                }
+                updateMark();
+            }
+        });
+
+        viewModel.getIsMarked().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean marked) {
+                isMarked = marked;
+                updateMark();
+            }
+        });
+    }
+
+    private void initExtraData() {
+        viewModel.requestMovies(movieModel.getId()).enqueue(new retrofit2.Callback<MoviesVideoResponse>() {
+            @Override
+            public void onResponse(Call<MoviesVideoResponse> call, @NonNull Response<MoviesVideoResponse> response) {
+                MoviesVideoResponse moviesResponse = response.body();
+                if (moviesResponse != null) {
+                    List<VideoModel> moviesVideoList = moviesResponse.getMovies();
+                    if (!moviesVideoList.isEmpty()) {
+                        videoAdapter.addItems(moviesVideoList);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                recyclerView.setVisibility(View.VISIBLE);
+                                textViewTitleTrailers.setVisibility(View.VISIBLE);
+                            }
+                        }, 500);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MoviesVideoResponse> call, Throwable t) {
+
+            }
+        });
+
+        viewModel.requestReviews(movieModel.getId()).enqueue(new retrofit2.Callback<MoviesReviewResponse>() {
+            @Override
+            public void onResponse(Call<MoviesReviewResponse> call, Response<MoviesReviewResponse> response) {
+                MoviesReviewResponse reviewResponse = response.body();
+                if (reviewResponse != null) {
+                    List<ReviewModel> reviewList = reviewResponse.getReviews();
+                    if (!reviewList.isEmpty()) {
+                        reviewsAdapter.addItems(reviewList);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                recyclerViewReviews.setVisibility(View.VISIBLE);
+                                textViewTitleReview.setVisibility(View.VISIBLE);
+                            }
+                        }, 500);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MoviesReviewResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void setupUI() {
         Picasso.get()
                 .load(IMAGE_HD_BASE_URL + movieModel.getImageUrl())
                 .noFade()
@@ -233,7 +250,6 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
                         false)
         );
         recyclerViewReviews.setAdapter(reviewsAdapter);
-
     }
 
     @OnClick(R.id.image_view_ic_star)

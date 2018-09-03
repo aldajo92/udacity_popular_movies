@@ -7,11 +7,10 @@
     android:background="@android:color/black"
     tools:context="com.android.aldajo92.popularmovies.MainActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <FrameLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent" />
+        android:layout_height="match_parent"/>
 
     <ImageView
         android:id="@+id/imageView_no_internet"

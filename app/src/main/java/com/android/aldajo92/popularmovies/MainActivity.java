@@ -1,46 +1,48 @@
 package com.android.aldajo92.popularmovies;
 
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
-import com.android.aldajo92.popularmovies.adapter.MoviesAdapter;
-import com.android.aldajo92.popularmovies.adapter.PaginationMoviesScrollListener;
-import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
+import com.android.aldajo92.popularmovies.fragments.CatalogMoviesFragment;
+import com.android.aldajo92.popularmovies.fragments.FavoritesMoviesFragment;
+import com.android.aldajo92.popularmovies.fragments.MoviesFragmentListener;
+import com.android.aldajo92.popularmovies.models.FavoriteMovieModel;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.viewmodel.MainViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Response;
 
+import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_FAVORITE_MOVIE_MODEL;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
 import static com.android.aldajo92.popularmovies.utils.Constants.MOVIE_PARAM;
 import static com.android.aldajo92.popularmovies.utils.Constants.TOP_RATED_PARAM;
 
-public class MainActivity extends AppCompatActivity implements ItemClickedListener<MovieModel>, MainViewListener {
+public class MainActivity extends AppCompatActivity implements MainViewListener, MoviesFragmentListener {
 
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
+    @BindView(R.id.container)
+    FrameLayout container;
 
     @BindView(R.id.imageView_no_internet)
     ImageView imageViewNoInternet;
@@ -51,16 +53,14 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
     @BindView(R.id.button_try_again)
     TextView buttonTryAgain;
 
-    MoviesAdapter adapter;
-    AlertDialog alertDialog;
-
-    List<MovieModel> movieModelList = new ArrayList<>();
-
     int selectedFilterID = R.id.action_filter_popular;
 
     private MainViewModel viewModel;
 
-    private PaginationMoviesScrollListener scrollListener;
+    private AlertDialog alertDialog;
+
+    private CatalogMoviesFragment catalogMoviesFragment;
+    private FavoritesMoviesFragment favoritesMoviesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,19 +70,23 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
 
         viewModel = new MainViewModel(this.getApplication(), this);
 
+        catalogMoviesFragment = CatalogMoviesFragment.getInstance(this);
+        favoritesMoviesFragment = FavoritesMoviesFragment.getInstance(this);
+
+        setFragment(catalogMoviesFragment);
+
         if (savedInstanceState == null) {
             createAlertDialog();
-            initRecyclerView();
             initListeners();
             viewModel.getMovieList();
         }
 
-        viewModel.getFavoriteMovieEntries().observe(this, new Observer<List<FavoriteMovieEntry>>() {
-            @Override
-            public void onChanged(@Nullable List<FavoriteMovieEntry> favoriteMovieEntries) {
-                android.util.Log.i("adj", Integer.toString(favoriteMovieEntries.size()));
-            }
-        });
+//        viewModel.getFavoriteMovieEntries().observe(this, new Observer<List<FavoriteMovieEntry>>() {
+//            @Override
+//            public void onChanged(@Nullable List<FavoriteMovieEntry> favoriteMovieEntries) {
+//                favoritesMoviesFragment.setMovies(favoriteMovieEntries);
+//            }
+//        });
     }
 
     private void createAlertDialog() {
@@ -97,22 +101,6 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
         }
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
-    }
-
-    private void initRecyclerView() {
-        adapter = new MoviesAdapter(this);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
-        recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.setAdapter(adapter);
-
-        scrollListener = new PaginationMoviesScrollListener(gridLayoutManager, 6) {
-            @Override
-            public void onLoadMore(int currentPage, int totalItemCount) {
-                viewModel.getMoviesListByPage(currentPage + 1);
-            }
-        };
-
-        recyclerView.addOnScrollListener(scrollListener);
     }
 
     private void initListeners() {
@@ -140,30 +128,80 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
 
     @Override
     public void handleResponse(List<MovieModel> movies) {
-        movieModelList.addAll(movies);
-        recyclerView.setVisibility(View.VISIBLE);
         textViewNoInternet.setVisibility(View.GONE);
         imageViewNoInternet.setVisibility(View.GONE);
         buttonTryAgain.setVisibility(View.GONE);
-        adapter.addItems(movieModelList);
+        container.setVisibility(View.VISIBLE);
+        //add in a base fragment
+        catalogMoviesFragment.addItems(movies);
     }
 
     @Override
     public void clearList() {
-        movieModelList.clear();
-        scrollListener.resetPagination();
+        //add in a base fragment
+        catalogMoviesFragment.clearList();
     }
 
     @Override
     public void showNetworkError() {
-        recyclerView.setVisibility(View.GONE);
+        container.setVisibility(View.GONE);
         textViewNoInternet.setVisibility(View.VISIBLE);
         imageViewNoInternet.setVisibility(View.VISIBLE);
         buttonTryAgain.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void itemClicked(MovieModel movieModel, int position, View view) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public void setFragment(Fragment fragment) {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.replace(R.id.container, fragment);
+        transaction.commit();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId != selectedFilterID) {
+            selectedFilterID = itemId;
+            switch (itemId) {
+                case R.id.action_filter_popular:
+                    //TODO improve this call
+                    viewModel.setSelectedFilter(MOVIE_PARAM);
+                    viewModel.getMovieList();
+                    setCatalogFragment();
+                    return true;
+                case R.id.filter_top_rated:
+                    //TODO improve this call
+                    viewModel.setSelectedFilter(TOP_RATED_PARAM);
+                    viewModel.getMovieList();
+                    setCatalogFragment();
+                    return true;
+                case R.id.filter_favorites:
+                    setFavoritesFragment();
+                    return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void setCatalogFragment(){
+        setFragment(catalogMoviesFragment);
+    }
+
+    private void setFavoritesFragment() {
+        setFragment(favoritesMoviesFragment);
+    }
+
+    @Override
+    public void itemClicked(MovieModel movieModel, View view) {
         Intent intent = new Intent(this, DetailMovieActivity.class);
         intent.putExtra(EXTRA_MOVIE_MODEL, movieModel);
         intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(view));
@@ -177,32 +215,31 @@ public class MainActivity extends AppCompatActivity implements ItemClickedListen
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return super.onCreateOptionsMenu(menu);
+    public void getMoviesListByPage(int page) {
+        viewModel.getMoviesListByPage(page);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId != selectedFilterID) {
-            selectedFilterID = itemId;
-            switch (itemId) {
-                case R.id.action_filter_popular:
-                    viewModel.setSelectedFilter(MOVIE_PARAM);
-                    viewModel.getMovieList();
-                    return true;
-                case R.id.filter_top_rated:
-                    viewModel.setSelectedFilter(TOP_RATED_PARAM);
-                    viewModel.getMovieList();
-                    return true;
-                case R.id.filter_favorites:
-
-                default:
-                    return super.onOptionsItemSelected(item);
+    public void favoriteMovieClicked(FavoriteMovieModel movieModel) {
+        showLoader();
+        viewModel.requestMovie(movieModel.getId()).enqueue(new retrofit2.Callback<MovieModel>() {
+            @Override
+            public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
+                hideLoader();
+                MovieModel movieModel = response.body();
+                openDetailFromFavorite(movieModel);
             }
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
+
+            @Override
+            public void onFailure(Call<MovieModel> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void openDetailFromFavorite(MovieModel movieModel){
+        Intent intent = new Intent(this, DetailMovieActivity.class);
+        intent.putExtra(EXTRA_FAVORITE_MOVIE_MODEL, movieModel);
+        startActivity(intent);
     }
 }

@@ -8,6 +8,7 @@ import android.arch.lifecycle.MutableLiveData;
 import com.android.aldajo92.popularmovies.AppExecutors;
 import com.android.aldajo92.popularmovies.db.FavoriteMovieEntry;
 import com.android.aldajo92.popularmovies.db.MovieDatabase;
+import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.models.MoviesReviewResponse;
 import com.android.aldajo92.popularmovies.models.MoviesVideoResponse;
 import com.android.aldajo92.popularmovies.network.MoviesAPI;
