@@ -13,4 +13,8 @@ public class Constants {
 
     public static final String MOVIE_PARAM = "popular";
     public static final String TOP_RATED_PARAM = "top_rated";
+    public static final String FAVORITES = "favorites";
+
+    public static final String CURRENT_OPTION_SELECTED = "com.android.aldajo92.popularmovies.currentOption";
+    public static final String CURRENT_SELECTED_ID = "com.android.aldajo92.popularmovies.selectedId";
 }
