@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_marginEnd="@dimen/margin_large"
+    android:layout_marginStart="@dimen/margin_large"
+    android:background="@color/colorPrimaryDark"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_large"
+        android:maxHeight="100dp"
+        android:orientation="vertical"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbars="vertical">
+
+        <TextView
+            android:id="@+id/text_view_author"
+            style="@style/TextViewTitleWhite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/margin_normal"
+            android:drawableStart="@drawable/ic_comment"
+            android:text="Some user" />
+
+        <TextView
+            android:id="@+id/text_view_content"
+            style="@style/TextViewContentWhite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Some Comment" />
+
+    </LinearLayout>
+
+</ScrollView>

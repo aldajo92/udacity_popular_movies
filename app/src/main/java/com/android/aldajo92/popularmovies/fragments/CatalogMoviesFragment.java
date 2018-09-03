@@ -63,21 +63,23 @@ public class CatalogMoviesFragment extends Fragment implements ItemClickedListen
         recyclerView.addOnScrollListener(scrollListener);
     }
 
-    public void addItems(List<MovieModel> movies){
+    public void addItems(List<MovieModel> movies) {
         movieModelList.addAll(movies);
-        adapter.addItems(movieModelList);
+        if (adapter != null) {
+            adapter.addItems(movieModelList);
+        }
     }
 
-    public void clearList(){
+    public void clearList() {
         movieModelList.clear();
-        if(scrollListener != null){
+        if (scrollListener != null) {
             scrollListener.resetPagination();
         }
     }
 
     @Override
     public void itemClicked(MovieModel movieModel, int position, View view) {
-        if(moviesFragmentViewListener != null){
+        if (moviesFragmentViewListener != null) {
             moviesFragmentViewListener.itemClicked(movieModel, view);
         }
     }
@@ -86,9 +88,14 @@ public class CatalogMoviesFragment extends Fragment implements ItemClickedListen
         this.moviesFragmentViewListener = listener;
     }
 
-    public static CatalogMoviesFragment getInstance(MoviesFragmentListener listener){
+    public static CatalogMoviesFragment getInstance(MoviesFragmentListener listener) {
         CatalogMoviesFragment fragment = new CatalogMoviesFragment();
         fragment.setMoviesFragmentViewListener(listener);
         return fragment;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 }

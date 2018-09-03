@@ -33,9 +33,12 @@ import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static com.android.aldajo92.popularmovies.utils.Constants.CURRENT_OPTION_SELECTED;
+import static com.android.aldajo92.popularmovies.utils.Constants.CURRENT_SELECTED_ID;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_FAVORITE_MOVIE_MODEL;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
+import static com.android.aldajo92.popularmovies.utils.Constants.FAVORITES;
 import static com.android.aldajo92.popularmovies.utils.Constants.MOVIE_PARAM;
 import static com.android.aldajo92.popularmovies.utils.Constants.TOP_RATED_PARAM;
 
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
     @BindView(R.id.button_try_again)
     TextView buttonTryAgain;
 
+    private
     int selectedFilterID = R.id.action_filter_popular;
 
     private MainViewModel viewModel;
@@ -61,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
 
     private CatalogMoviesFragment catalogMoviesFragment;
     private FavoritesMoviesFragment favoritesMoviesFragment;
+
+    private String optionSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,20 +79,16 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
         catalogMoviesFragment = CatalogMoviesFragment.getInstance(this);
         favoritesMoviesFragment = FavoritesMoviesFragment.getInstance(this);
 
-        setFragment(catalogMoviesFragment);
+        viewModel.getMovieList();
+        createAlertDialog();
+        initListeners();
 
         if (savedInstanceState == null) {
-            createAlertDialog();
-            initListeners();
-            viewModel.getMovieList();
+            setFragmentByOptionSelected(MOVIE_PARAM);
+        } else {
+            setFragmentByOptionSelected(savedInstanceState.getString(CURRENT_OPTION_SELECTED, MOVIE_PARAM));
+            selectedFilterID = savedInstanceState.getInt(CURRENT_SELECTED_ID, selectedFilterID);
         }
-
-//        viewModel.getFavoriteMovieEntries().observe(this, new Observer<List<FavoriteMovieEntry>>() {
-//            @Override
-//            public void onChanged(@Nullable List<FavoriteMovieEntry> favoriteMovieEntries) {
-//                favoritesMoviesFragment.setMovies(favoriteMovieEntries);
-//            }
-//        });
     }
 
     private void createAlertDialog() {
@@ -132,13 +134,11 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
         imageViewNoInternet.setVisibility(View.GONE);
         buttonTryAgain.setVisibility(View.GONE);
         container.setVisibility(View.VISIBLE);
-        //add in a base fragment
         catalogMoviesFragment.addItems(movies);
     }
 
     @Override
     public void clearList() {
-        //add in a base fragment
         catalogMoviesFragment.clearList();
     }
 
@@ -156,7 +156,14 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void setFragment(Fragment fragment) {
+    public void setFragmentByOptionSelected(String optionSelected) {
+        this.optionSelected = optionSelected;
+        Fragment fragment;
+        if (optionSelected.equals(FAVORITES)) {
+            fragment = favoritesMoviesFragment;
+        } else {
+            fragment = catalogMoviesFragment;
+        }
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.replace(R.id.container, fragment);
@@ -170,19 +177,17 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
             selectedFilterID = itemId;
             switch (itemId) {
                 case R.id.action_filter_popular:
-                    //TODO improve this call
-                    viewModel.setSelectedFilter(MOVIE_PARAM);
+                    setFragmentByOptionSelected(MOVIE_PARAM);
+                    viewModel.setSelectedFilter(optionSelected);
                     viewModel.getMovieList();
-                    setCatalogFragment();
                     return true;
                 case R.id.filter_top_rated:
-                    //TODO improve this call
-                    viewModel.setSelectedFilter(TOP_RATED_PARAM);
+                    setFragmentByOptionSelected(TOP_RATED_PARAM);
+                    viewModel.setSelectedFilter(optionSelected);
                     viewModel.getMovieList();
-                    setCatalogFragment();
                     return true;
                 case R.id.filter_favorites:
-                    setFavoritesFragment();
+                    setFragmentByOptionSelected(FAVORITES);
                     return true;
                 default:
                     return super.onOptionsItemSelected(item);
@@ -190,14 +195,6 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
         } else {
             return super.onOptionsItemSelected(item);
         }
-    }
-
-    private void setCatalogFragment(){
-        setFragment(catalogMoviesFragment);
-    }
-
-    private void setFavoritesFragment() {
-        setFragment(favoritesMoviesFragment);
     }
 
     @Override
@@ -232,14 +229,21 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
 
             @Override
             public void onFailure(Call<MovieModel> call, Throwable t) {
-
+                showNetworkError();
             }
         });
     }
 
-    private void openDetailFromFavorite(MovieModel movieModel){
+    private void openDetailFromFavorite(MovieModel movieModel) {
         Intent intent = new Intent(this, DetailMovieActivity.class);
         intent.putExtra(EXTRA_FAVORITE_MOVIE_MODEL, movieModel);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(CURRENT_OPTION_SELECTED, optionSelected);
+        outState.putInt(CURRENT_SELECTED_ID, selectedFilterID);
+        super.onSaveInstanceState(outState);
     }
 }
