@@ -5,47 +5,42 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.aldajo92.popularmovies.fragments.CatalogMoviesFragment;
-import com.android.aldajo92.popularmovies.fragments.FavoritesMoviesFragment;
-import com.android.aldajo92.popularmovies.fragments.MoviesFragmentListener;
-import com.android.aldajo92.popularmovies.models.FavoriteMovieModel;
+import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
+import com.android.aldajo92.popularmovies.adapter.PaginationMoviesScrollListener;
+import com.android.aldajo92.popularmovies.adapter.movies.MoviesAdapter;
 import com.android.aldajo92.popularmovies.models.MovieModel;
 import com.android.aldajo92.popularmovies.viewmodel.MainViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Response;
 
 import static com.android.aldajo92.popularmovies.utils.Constants.CURRENT_OPTION_SELECTED;
+import static com.android.aldajo92.popularmovies.utils.Constants.CURRENT_PAGE;
 import static com.android.aldajo92.popularmovies.utils.Constants.CURRENT_SELECTED_ID;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_FAVORITE_MOVIE_MODEL;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_IMAGE_TRANSITION_NAME;
 import static com.android.aldajo92.popularmovies.utils.Constants.EXTRA_MOVIE_MODEL;
-import static com.android.aldajo92.popularmovies.utils.Constants.FAVORITES;
+import static com.android.aldajo92.popularmovies.utils.Constants.LIST_MOVIES;
+import static com.android.aldajo92.popularmovies.utils.Constants.LIST_STATE_KEY;
 import static com.android.aldajo92.popularmovies.utils.Constants.MOVIE_PARAM;
 import static com.android.aldajo92.popularmovies.utils.Constants.TOP_RATED_PARAM;
 
-public class MainActivity extends AppCompatActivity implements MainViewListener, MoviesFragmentListener {
-
-    @BindView(R.id.container)
-    FrameLayout container;
+public class MainActivity extends AppCompatActivity implements MainViewListener, ItemClickedListener<MovieModel> {
 
     @BindView(R.id.imageView_no_internet)
     ImageView imageViewNoInternet;
@@ -56,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
     @BindView(R.id.button_try_again)
     TextView buttonTryAgain;
 
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
+
     private
     int selectedFilterID = R.id.action_filter_popular;
 
@@ -63,10 +61,15 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
 
     private AlertDialog alertDialog;
 
-    private CatalogMoviesFragment catalogMoviesFragment;
-    private FavoritesMoviesFragment favoritesMoviesFragment;
-
     private String optionSelected;
+
+    private PaginationMoviesScrollListener scrollListener;
+
+    private MoviesAdapter adapter;
+
+    private List<MovieModel> movieModelList = new ArrayList<>();
+
+    private GridLayoutManager gridLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,19 +79,37 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
 
         viewModel = new MainViewModel(this.getApplication(), this);
 
-        catalogMoviesFragment = CatalogMoviesFragment.getInstance(this);
-        favoritesMoviesFragment = FavoritesMoviesFragment.getInstance(this);
-
-        viewModel.getMovieList();
         createAlertDialog();
         initListeners();
+        initRecyclerView();
 
         if (savedInstanceState == null) {
-            setFragmentByOptionSelected(MOVIE_PARAM);
+            viewModel.getMovieList();
         } else {
-            setFragmentByOptionSelected(savedInstanceState.getString(CURRENT_OPTION_SELECTED, MOVIE_PARAM));
             selectedFilterID = savedInstanceState.getInt(CURRENT_SELECTED_ID, selectedFilterID);
+            gridLayoutManager = new GridLayoutManager(this, 3);
+            movieModelList = savedInstanceState.getParcelableArrayList(LIST_MOVIES);
+            scrollListener.setCurrentPage(savedInstanceState.getInt(CURRENT_PAGE, 0));
+//            outState.putInt(CURRENT_PAGE, scrollListener.getCurrentPage());
+            adapter.addItems(movieModelList);
+            gridLayoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(LIST_STATE_KEY));
         }
+    }
+
+    private void initRecyclerView() {
+        adapter = new MoviesAdapter(this);
+        gridLayoutManager = new GridLayoutManager(this, 3);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.setAdapter(adapter);
+
+        scrollListener = new PaginationMoviesScrollListener(gridLayoutManager, 6) {
+            @Override
+            public void onLoadMore(int currentPage, int totalItemCount) {
+                viewModel.getMoviesListByPage(currentPage + 1);
+            }
+        };
+
+        recyclerView.addOnScrollListener(scrollListener);
     }
 
     private void createAlertDialog() {
@@ -133,18 +154,26 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
         textViewNoInternet.setVisibility(View.GONE);
         imageViewNoInternet.setVisibility(View.GONE);
         buttonTryAgain.setVisibility(View.GONE);
-        container.setVisibility(View.VISIBLE);
-        catalogMoviesFragment.addItems(movies);
+        recyclerView.setVisibility(View.VISIBLE);
+
+        movieModelList.addAll(movies);
+        if (adapter != null) {
+            adapter.addItems(movieModelList);
+        }
     }
 
-    @Override
-    public void clearList() {
-        catalogMoviesFragment.clearList();
+    private void clearList() {
+        if (scrollListener != null) {
+            scrollListener.resetPagination();
+        }
+        movieModelList.clear();
+        adapter.notifyDataSetChanged();
+        gridLayoutManager.scrollToPosition(0);
     }
 
     @Override
     public void showNetworkError() {
-        container.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.GONE);
         textViewNoInternet.setVisibility(View.VISIBLE);
         imageViewNoInternet.setVisibility(View.VISIBLE);
         buttonTryAgain.setVisibility(View.VISIBLE);
@@ -156,20 +185,6 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void setFragmentByOptionSelected(String optionSelected) {
-        this.optionSelected = optionSelected;
-        Fragment fragment;
-        if (optionSelected.equals(FAVORITES)) {
-            fragment = favoritesMoviesFragment;
-        } else {
-            fragment = catalogMoviesFragment;
-        }
-        FragmentManager manager = getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        transaction.replace(R.id.container, fragment);
-        transaction.commit();
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -177,17 +192,19 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
             selectedFilterID = itemId;
             switch (itemId) {
                 case R.id.action_filter_popular:
-                    setFragmentByOptionSelected(MOVIE_PARAM);
+                    this.optionSelected = MOVIE_PARAM;
                     viewModel.setSelectedFilter(optionSelected);
+                    clearList();
                     viewModel.getMovieList();
                     return true;
                 case R.id.filter_top_rated:
-                    setFragmentByOptionSelected(TOP_RATED_PARAM);
+                    this.optionSelected = TOP_RATED_PARAM;
                     viewModel.setSelectedFilter(optionSelected);
+                    clearList();
                     viewModel.getMovieList();
                     return true;
                 case R.id.filter_favorites:
-                    setFragmentByOptionSelected(FAVORITES);
+//                    setFragmentByOptionSelected(FAVORITES);
                     return true;
                 default:
                     return super.onOptionsItemSelected(item);
@@ -197,42 +214,23 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
         }
     }
 
-    @Override
-    public void itemClicked(MovieModel movieModel, View view) {
-        Intent intent = new Intent(this, DetailMovieActivity.class);
-        intent.putExtra(EXTRA_MOVIE_MODEL, movieModel);
-        intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(view));
-
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                this,
-                view,
-                ViewCompat.getTransitionName(view));
-
-        startActivity(intent, options.toBundle());
-    }
-
-    @Override
-    public void getMoviesListByPage(int page) {
-        viewModel.getMoviesListByPage(page);
-    }
-
-    @Override
-    public void favoriteMovieClicked(FavoriteMovieModel movieModel) {
-        showLoader();
-        viewModel.requestMovie(movieModel.getId()).enqueue(new retrofit2.Callback<MovieModel>() {
-            @Override
-            public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
-                hideLoader();
-                MovieModel movieModel = response.body();
-                openDetailFromFavorite(movieModel);
-            }
-
-            @Override
-            public void onFailure(Call<MovieModel> call, Throwable t) {
-                showNetworkError();
-            }
-        });
-    }
+//    @Override
+//    public void favoriteMovieClicked(FavoriteMovieModel movieModel) {
+//        showLoader();
+//        viewModel.requestMovie(movieModel.getId()).enqueue(new retrofit2.Callback<MovieModel>() {
+//            @Override
+//            public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
+//                hideLoader();
+//                MovieModel movieModel = response.body();
+//                openDetailFromFavorite(movieModel);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<MovieModel> call, Throwable t) {
+//                showNetworkError();
+//            }
+//        });
+//    }
 
     private void openDetailFromFavorite(MovieModel movieModel) {
         Intent intent = new Intent(this, DetailMovieActivity.class);
@@ -244,6 +242,23 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(CURRENT_OPTION_SELECTED, optionSelected);
         outState.putInt(CURRENT_SELECTED_ID, selectedFilterID);
+        outState.putParcelable(LIST_STATE_KEY, gridLayoutManager.onSaveInstanceState());
+        outState.putInt(CURRENT_PAGE, scrollListener.getCurrentPage());
+        outState.putParcelableArrayList(LIST_MOVIES, new ArrayList<>(movieModelList));
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void itemClicked(MovieModel movieModel, int position, View view) {
+        Intent intent = new Intent(this, DetailMovieActivity.class);
+        intent.putExtra(EXTRA_MOVIE_MODEL, movieModel);
+        intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(view));
+
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this,
+                view,
+                ViewCompat.getTransitionName(view));
+
+        startActivity(intent, options.toBundle());
     }
 }

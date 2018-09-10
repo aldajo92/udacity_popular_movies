@@ -17,4 +17,7 @@ public class Constants {
 
     public static final String CURRENT_OPTION_SELECTED = "com.android.aldajo92.popularmovies.currentOption";
     public static final String CURRENT_SELECTED_ID = "com.android.aldajo92.popularmovies.selectedId";
+    public static final String LIST_STATE_KEY = "com.android.aldajo92.popularmovies.listStateKey";
+    public static final String LIST_MOVIES = "com.android.aldajo92.popularmovies.movies";
+    public static final String CURRENT_PAGE = "com.android.aldajo92.popularmovies.currentPage";
 }

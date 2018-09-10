@@ -12,7 +12,5 @@ public interface MainViewListener {
 
     void handleResponse(List<MovieModel> list);
 
-    void clearList();
-
     void showNetworkError();
 }

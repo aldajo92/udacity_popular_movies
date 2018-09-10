@@ -47,7 +47,6 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void getMovieList() {
-        listener.clearList();
         getMoviesByPage(selectedFilter, 1);
     }
 
@@ -77,7 +76,9 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void setSelectedFilter(String selectedFilter) {
-        this.selectedFilter = selectedFilter;
+        if(!this.selectedFilter.equals(selectedFilter)){
+            this.selectedFilter = selectedFilter;
+        }
     }
 
     public Call<MovieModel> requestMovie(long id) {
