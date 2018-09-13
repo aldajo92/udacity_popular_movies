@@ -84,4 +84,8 @@ public class MainViewModel extends AndroidViewModel {
     public Call<MovieModel> requestMovie(long id) {
         return moviesApi.getMovie(id);
     }
+
+    public void getFavoriteMovieList() {
+
+    }
 }

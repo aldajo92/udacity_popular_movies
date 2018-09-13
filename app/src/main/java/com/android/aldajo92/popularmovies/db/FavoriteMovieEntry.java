@@ -4,6 +4,8 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
+import com.google.gson.annotations.SerializedName;
+
 @Entity(tableName = "favorite_movie")
 public class FavoriteMovieEntry {
 
@@ -13,9 +15,13 @@ public class FavoriteMovieEntry {
     @ColumnInfo
     private String title;
 
-    public FavoriteMovieEntry(long id, String title) {
+    @ColumnInfo
+    private String imageUrl;
+
+    public FavoriteMovieEntry(long id, String title, String imageUrl) {
         this.id = id;
         this.title = title;
+        this.imageUrl = imageUrl;
     }
 
     public long getId() {
@@ -28,5 +34,13 @@ public class FavoriteMovieEntry {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 }

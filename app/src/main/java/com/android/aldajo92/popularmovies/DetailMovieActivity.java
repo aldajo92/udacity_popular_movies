@@ -286,7 +286,7 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
         if (isMarked) {
             viewModel.removeFavoriteMovie(movieEntry);
         } else {
-            viewModel.saveFavoriteMovie(new FavoriteMovieEntry(movieModel.getId(), movieModel.getName()));
+            viewModel.saveFavoriteMovie(new FavoriteMovieEntry(movieModel.getId(), movieModel.getName(), movieModel.getImageUrl()));
         }
     }
 
