@@ -44,4 +44,12 @@ public abstract class PaginationMoviesScrollListener extends RecyclerView.OnScro
         isLoading = true;
         previousTotalItemCount = 0;
     }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
 }

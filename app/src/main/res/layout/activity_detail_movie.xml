@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black">
+    android:background="@color/black">
 
     <TextView
         android:id="@+id/textView_movie_title"
@@ -29,7 +29,7 @@
         android:layout_marginEnd="@dimen/margin_large"
         android:layout_marginStart="@dimen/margin_large"
         android:layout_marginTop="@dimen/margin_normal"
-        android:background="@android:color/white"
+        android:background="@color/white"
         app:layout_constraintTop_toBottomOf="@id/textView_movie_title" />
 
     <android.support.v4.widget.NestedScrollView
@@ -59,15 +59,15 @@
 
             <ImageView
                 android:id="@+id/imageView_movie_picture"
-                android:layout_width="200dp"
-                android:layout_height="300dp"
+                android:layout_width="@dimen/detail_image_width"
+                android:layout_height="@dimen/detail_image_height"
                 android:layout_marginBottom="@dimen/margin_normal"
                 android:layout_marginEnd="@dimen/margin_normal"
                 android:layout_marginStart="@dimen/margin_large"
                 android:layout_marginTop="@dimen/margin_large"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView_title_original"
-                tools:background="@android:color/white" />
+                tools:background="@color/white" />
 
             <TextView
                 android:id="@+id/textView_title_average"
@@ -101,7 +101,7 @@
                 android:layout_marginEnd="@dimen/margin_large"
                 android:layout_marginStart="@dimen/margin_normal"
                 android:layout_marginTop="@dimen/margin_normal"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
                 app:layout_constraintTop_toBottomOf="@id/textView_average" />
@@ -139,7 +139,7 @@
                 android:layout_marginEnd="@dimen/margin_large"
                 android:layout_marginStart="@dimen/margin_normal"
                 android:layout_marginTop="10dp"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imageView_movie_picture"
                 app:layout_constraintTop_toBottomOf="@id/textView_release_date" />

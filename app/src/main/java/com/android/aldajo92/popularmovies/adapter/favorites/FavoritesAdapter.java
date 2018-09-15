@@ -38,6 +38,11 @@ public class FavoritesAdapter extends RecyclerView.Adapter<ItemFavoriteMovieHold
         return favoriteMovieModels.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
+
     public void addItem(FavoriteMovieModel movieModel) {
         favoriteMovieModels.add(movieModel);
     }

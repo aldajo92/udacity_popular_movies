@@ -5,7 +5,7 @@
     android:layout_width="250dp"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/margin_normal"
-    tools:background="@android:color/black">
+    tools:background="@color/black">
 
     <TextView
         android:id="@+id/text_view_author"

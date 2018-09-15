@@ -4,4 +4,7 @@
     <color name="colorPrimaryDark">#111111</color>
     <color name="colorAccent">#cccccc</color>
     <color name="transparent">#00ffffff</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="holo_red_dark">#ffcc0000</color>
 </resources>

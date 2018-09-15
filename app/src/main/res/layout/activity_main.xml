@@ -4,18 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
+    android:background="@color/black"
     tools:context="com.android.aldajo92.popularmovies.MainActivity">
 
-    <FrameLayout
-        android:id="@+id/container"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView_favorites"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/imageView_no_internet"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="@dimen/no_internet_height"
         android:src="@drawable/sad_logo"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/textView_no_internet"

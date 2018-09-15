@@ -38,10 +38,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<ItemMovieHolder> {
         return list.size();
     }
 
-    public void addItem(MovieModel movieModel) {
-        list.add(movieModel);
-    }
-
     public void addItems(List<MovieModel> movieModelList) {
         list = movieModelList;
         notifyDataSetChanged();

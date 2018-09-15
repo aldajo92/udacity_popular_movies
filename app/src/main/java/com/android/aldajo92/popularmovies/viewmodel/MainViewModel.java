@@ -31,10 +31,8 @@ public class MainViewModel extends AndroidViewModel {
 
     private String selectedFilter = MOVIE_PARAM;
 
-    public MainViewModel(@NonNull Application application, MainViewListener listener) {
+    public MainViewModel(Application application) {
         super(application);
-
-        this.listener = listener;
 
         MovieDatabase database = MovieDatabase.getInstance(this.getApplication());
         favoriteMoviesEntries = database.favoriteMovieDao().getFavoritesMovies();
@@ -42,12 +40,15 @@ public class MainViewModel extends AndroidViewModel {
         moviesApi = MoviesService.getClient().create(MoviesAPI.class);
     }
 
+    public void setListener(MainViewListener listener) {
+        this.listener = listener;
+    }
+
     public LiveData<List<FavoriteMovieEntry>> getFavoriteMovieEntries() {
         return favoriteMoviesEntries;
     }
 
     public void getMovieList() {
-        listener.clearList();
         getMoviesByPage(selectedFilter, 1);
     }
 
@@ -77,7 +78,9 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void setSelectedFilter(String selectedFilter) {
-        this.selectedFilter = selectedFilter;
+        if(!this.selectedFilter.equals(selectedFilter)){
+            this.selectedFilter = selectedFilter;
+        }
     }
 
     public Call<MovieModel> requestMovie(long id) {

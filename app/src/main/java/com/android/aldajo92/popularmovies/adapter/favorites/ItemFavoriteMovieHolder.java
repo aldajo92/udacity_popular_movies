@@ -1,5 +1,6 @@
 package com.android.aldajo92.popularmovies.adapter.favorites;
 
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -8,14 +9,14 @@ import android.widget.TextView;
 import com.android.aldajo92.popularmovies.R;
 import com.android.aldajo92.popularmovies.adapter.ItemClickedListener;
 import com.android.aldajo92.popularmovies.models.FavoriteMovieModel;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-class ItemFavoriteMovieHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+import static com.android.aldajo92.popularmovies.utils.Constants.IMAGE_BASE_URL;
 
-    @BindView(R.id.text_view_name)
-    TextView textViewName;
+class ItemFavoriteMovieHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     @BindView(R.id.imageView)
     ImageView imageView;
@@ -32,7 +33,8 @@ class ItemFavoriteMovieHolder extends RecyclerView.ViewHolder implements View.On
 
     public void bindData(FavoriteMovieModel model) {
         this.model = model;
-        textViewName.setText(model.getName());
+        Picasso.get().load(IMAGE_BASE_URL + model.getImageUrl()).into(imageView);
+        ViewCompat.setTransitionName(imageView, model.getName());
     }
 
     @Override
