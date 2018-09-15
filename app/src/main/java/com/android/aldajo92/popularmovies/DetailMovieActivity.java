@@ -2,8 +2,11 @@ package com.android.aldajo92.popularmovies;
 
 import android.app.Dialog;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +34,7 @@ import com.android.aldajo92.popularmovies.models.ReviewModel;
 import com.android.aldajo92.popularmovies.models.VideoModel;
 import com.android.aldajo92.popularmovies.utils.DateUtils;
 import com.android.aldajo92.popularmovies.viewmodel.DetailMovieViewModel;
+import com.android.aldajo92.popularmovies.viewmodel.MainViewModel;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -103,7 +107,8 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
         setContentView(R.layout.activity_detail_movie);
         ButterKnife.bind(this);
 
-        viewModel = new DetailMovieViewModel(getApplication());
+        viewModel = ViewModelProviders.of(this).get(DetailMovieViewModel.class);
+
         supportPostponeEnterTransition();
         Intent intent = getIntent();
 
@@ -300,6 +305,12 @@ public class DetailMovieActivity extends AppCompatActivity implements ItemClicke
 
     @Override
     public void itemClicked(VideoModel data, int position, View imageView) {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_BASE_URL + data.getKey())));
+        Intent urlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_BASE_URL + data.getKey()));
+        PackageManager packageManager = getPackageManager();
+        List<ResolveInfo> activities = packageManager.queryIntentActivities(urlIntent, 0);
+        boolean isIntentSafe = activities.size() > 0;
+        if (isIntentSafe) {
+            startActivity(urlIntent);
+        }
     }
 }

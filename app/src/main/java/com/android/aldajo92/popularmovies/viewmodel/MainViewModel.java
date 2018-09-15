@@ -31,15 +31,17 @@ public class MainViewModel extends AndroidViewModel {
 
     private String selectedFilter = MOVIE_PARAM;
 
-    public MainViewModel(@NonNull Application application, MainViewListener listener) {
+    public MainViewModel(Application application) {
         super(application);
-
-        this.listener = listener;
 
         MovieDatabase database = MovieDatabase.getInstance(this.getApplication());
         favoriteMoviesEntries = database.favoriteMovieDao().getFavoritesMovies();
 
         moviesApi = MoviesService.getClient().create(MoviesAPI.class);
+    }
+
+    public void setListener(MainViewListener listener) {
+        this.listener = listener;
     }
 
     public LiveData<List<FavoriteMovieEntry>> getFavoriteMovieEntries() {
@@ -83,9 +85,5 @@ public class MainViewModel extends AndroidViewModel {
 
     public Call<MovieModel> requestMovie(long id) {
         return moviesApi.getMovie(id);
-    }
-
-    public void getFavoriteMovieList() {
-
     }
 }
