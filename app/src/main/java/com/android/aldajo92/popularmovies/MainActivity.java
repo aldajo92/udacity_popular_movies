@@ -113,7 +113,9 @@ public class MainActivity extends AppCompatActivity implements MainViewListener,
         } else {
             optionSelected = savedInstanceState.getString(CURRENT_OPTION_SELECTED, MOVIE_PARAM);
             selectedFilterID = savedInstanceState.getInt(CURRENT_SELECTED_ID, selectedFilterID);
-            gridLayoutManager = new GridLayoutManager(this, 3);
+            gridLayoutManager = new GridLayoutManager(
+                    this,
+                    calculateBestSpanCount(getResources().getDimensionPixelSize(R.dimen.width_image_home)));
             movieModelList = savedInstanceState.getParcelableArrayList(LIST_MOVIES);
             scrollListener.setCurrentPage(savedInstanceState.getInt(CURRENT_PAGE, 0));
             adapter.addItems(movieModelList);
